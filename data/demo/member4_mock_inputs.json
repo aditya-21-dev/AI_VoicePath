@@ -1,0 +1,27 @@
+{
+  "DEMO_PROFILE": {
+    "current_skills": [
+      "Inventory Management",
+      "Customer Handling"
+    ]
+  },
+  "MOCK_OPPORTUNITY": {
+    "opportunity_id": "MOCK_OPPORTUNITY",
+    "title": "Demo Store Assistant Opportunity",
+    "district": "Demo District",
+    "type": "mock",
+    "source_url": null,
+    "required_skills": [
+      "Inventory Management",
+      "Customer Handling",
+      "Digital Inventory Systems",
+      "Basic Computer Operations"
+    ]
+  },
+  "TEST_REQUIRED_SKILLS": [
+    "Inventory Management",
+    "Customer Handling",
+    "Digital Inventory Systems",
+    "Basic Computer Operations"
+  ]
+}

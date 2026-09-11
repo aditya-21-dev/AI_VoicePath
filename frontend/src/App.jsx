@@ -4,31 +4,23 @@ import './index.css'
 import './App.css'
 import './components/components.css'
 
-import Header          from './components/Header.jsx'
-import VoiceRecorder   from './components/VoiceRecorder.jsx'
-import TranscriptReview from './components/TranscriptReview.jsx'
-import SkillDiscovery  from './components/SkillDiscovery.jsx'
-import SkillProfile    from './components/SkillProfile.jsx'
+import Header                 from './components/Header.jsx'
+import VoiceRecorder          from './components/VoiceRecorder.jsx'
+import TranscriptReview        from './components/TranscriptReview.jsx'
+import AIProcessingTransition  from './components/AIProcessingTransition.jsx'
+import SkillDiscovery         from './components/SkillDiscovery.jsx'
+import SkillProfile           from './components/SkillProfile.jsx'
+import OpportunitiesView      from './components/OpportunitiesView.jsx'
 
 import { analyzeVoice } from './services/api.js'
 
 // ── Stage constants ────────────────────────────────────────────────────────────
 const STAGE = {
-  INTAKE:      'intake',
-  REVIEWING:   'reviewing',
-  DISCOVERING: 'discovering',
-  PROFILE:     'profile',
-}
-
-// ── Loading overlay ────────────────────────────────────────────────────────────
-function LoadingOverlay({ message = 'Analysing your speech…', sub = 'This only takes a moment.' }) {
-  return (
-    <div className="vp-loading" role="status" aria-live="polite">
-      <div className="vp-spinner" aria-hidden="true" />
-      <p className="vp-loading__text">{message}</p>
-      <p className="vp-loading__subtext">{sub}</p>
-    </div>
-  )
+  INTAKE:        'intake',
+  REVIEWING:     'reviewing',
+  DISCOVERING:   'discovering',
+  PROFILE:       'profile',
+  OPPORTUNITIES: 'opportunities',
 }
 
 // ── Footer ─────────────────────────────────────────────────────────────────────
@@ -68,8 +60,15 @@ export default function App() {
   const handleConfirm = useCallback(async (editedTranscript) => {
     setIsLoading(true)
     setApiError('')
+
+    const minAnimationDelay = new Promise((res) => setTimeout(res, 1800))
+
     try {
-      const response = await analyzeVoice({ transcript: editedTranscript })
+      const [response] = await Promise.all([
+        analyzeVoice({ transcript: editedTranscript }),
+        minAnimationDelay,
+      ])
+
       if (!response.success) throw new Error(response.message ?? 'Analysis failed')
       setAnalysisResult(response.data)
       setStage(STAGE.DISCOVERING)
@@ -101,21 +100,15 @@ export default function App() {
     setApiError('')
   }, [])
 
-  // ── Placeholder: Find Jobs (future screen) ────────────────
+  // ── Stage 4 → 5: Move to Career Opportunities & Upskilling ─
   const handleFindJobs = useCallback(() => {
-    // TODO: navigate to Opportunities screen (Member 2/3 territory)
-    alert('Coming soon: Job matching & skill gap analysis!')
+    setStage(STAGE.OPPORTUNITIES)
   }, [])
 
   // ── Render current stage ───────────────────────────────────
   function renderStage() {
     if (isLoading) {
-      return (
-        <LoadingOverlay
-          message="Identifying your skills…"
-          sub="We're reading through what you said — no buzzwords required."
-        />
-      )
+      return <AIProcessingTransition />
     }
 
     switch (stage) {
@@ -156,6 +149,14 @@ export default function App() {
           />
         )
 
+      case STAGE.OPPORTUNITIES:
+        return (
+          <OpportunitiesView
+            onBackToProfile={() => setStage(STAGE.PROFILE)}
+            onStartOver={handleStartOver}
+          />
+        )
+
       default:
         return null
     }
@@ -163,7 +164,7 @@ export default function App() {
 
   return (
     <div className="vp-app">
-      {/* Sticky header with step indicator */}
+      {/* Sticky header with live status, step indicator, a11y & avatar */}
       <Header
         stage={stage}
         language={language}

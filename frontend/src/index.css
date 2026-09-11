@@ -1,51 +1,99 @@
 /* ============================================================
    VoicePath — Global Design Tokens & Base Styles
-   Dark professional theme: near-black bg, red accent, clean type
+   Team: Code Red | Track: Edutech | Year: 2026
+   Palette: Deep Midnight/Charcoal, Electric Violet/Indigo,
+            Cyan/Turquoise, Soft Emerald, Warm Amber.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* ─── Design Tokens ──────────────────────────────────────── */
 
 :root {
-  /* Colours */
-  --bg-base:          #0d0d0f;      /* near-black page background  */
-  --bg-surface:       #141416;      /* card / panel background     */
-  --bg-elevated:      #1c1c1f;      /* modals, tooltips            */
-  --bg-hover:         #222226;      /* subtle hover tint           */
+  /* Surface & Base Hierarchy (Deep Midnight & Charcoal) */
+  --bg-base:              #07090D;      /* Deep midnight interface base       */
+  --bg-surface:           #0B0F17;      /* Rich charcoal card / panel base    */
+  --bg-elevated:          #111827;      /* Modals, elevated surfaces, chips   */
+  --bg-hover:             #162032;      /* Interactive hover tint             */
+  --bg-glass:             rgba(11, 15, 23, 0.72);   /* Glassmorphism surface */
+  --bg-glass-elevated:    rgba(17, 24, 39, 0.78);   /* Elevated glass       */
 
-  --text-primary:     #f0f0f2;      /* headings, important labels  */
-  --text-secondary:   #a0a0a8;      /* body copy, descriptions     */
-  --text-muted:       #5a5a64;      /* placeholders, disabled      */
-  --text-inverse:     #0d0d0f;      /* text on red accent buttons  */
+  /* Typography Hierarchy */
+  --text-primary:         #F8FAFC;      /* Crisp headline and high-contrast   */
+  --text-secondary:       #94A3B8;      /* Body copy, subtitles, descriptions */
+  --text-muted:           #64748B;      /* Placeholders, meta, subtle notes   */
+  --text-inverse:         #FFFFFF;      /* Text on vivid accent buttons       */
 
-  /* Red accent */
-  --accent:           #e5343a;      /* primary red                 */
-  --accent-hover:     #ff4a50;      /* lighter red on hover        */
-  --accent-muted:     rgba(229, 52, 58, 0.15);
-  --accent-border:    rgba(229, 52, 58, 0.40);
-  --accent-glow:      rgba(229, 52, 58, 0.25);
+  /* Primary Accents: Electric Violet & Vivid Indigo */
+  --accent-primary:       #8B5CF6;      /* Electric violet                    */
+  --accent:               #8B5CF6;      /* Primary accent reference           */
+  --accent-hover:         #A78BFA;      /* Lighter violet on hover            */
+  --accent-active:        #7C3AED;      /* Deep violet on click               */
+  --accent-indigo:        #6366F1;      /* Electric indigo partner            */
+  --accent-muted:         rgba(139, 92, 246, 0.14);
+  --accent-border:        rgba(139, 92, 246, 0.38);
+  --accent-glow:          rgba(139, 92, 246, 0.35);
+  --accent-glow-strong:   rgba(139, 92, 246, 0.55);
+  --accent-gradient:      linear-gradient(135deg, #7C3AED 0%, #6366F1 50%, #8B5CF6 100%);
+  --accent-gradient-glow: linear-gradient(135deg, rgba(124, 58, 237, 0.4) 0%, rgba(99, 102, 241, 0.35) 100%);
+
+  /* Secondary Accents: Cyan & Turquoise */
+  --accent-secondary:        #06B6D4;   /* Vivid cyan                         */
+  --accent-secondary-hover:  #22D3EE;   /* Lighter cyan                       */
+  --accent-secondary-muted:  rgba(6, 182, 212, 0.14);
+  --accent-secondary-border: rgba(6, 182, 212, 0.38);
+  --accent-secondary-glow:   rgba(6, 182, 212, 0.35);
+  --accent-cyan:             #06B6D4;
+  --accent-turquoise:        #14B8A6;   /* Rich turquoise                     */
+  --gradient-cyan:           linear-gradient(135deg, #06B6D4 0%, #14B8A6 100%);
+  --gradient-brand:          linear-gradient(135deg, #8B5CF6 0%, #6366F1 45%, #06B6D4 100%);
+
+  /* Soft Emerald Success */
+  --success:              #10B981;      /* Soft emerald                       */
+  --success-hover:        #34D399;      /* Lighter emerald                    */
+  --success-muted:        rgba(16, 185, 129, 0.14);
+  --success-border:       rgba(16, 185, 129, 0.35);
+  --success-glow:         rgba(16, 185, 129, 0.30);
+  --gradient-success:     linear-gradient(135deg, #059669 0%, #10B981 100%);
+
+  /* Warm Amber Warnings */
+  --warning:              #F59E0B;      /* Warm amber                         */
+  --warning-hover:        #FBBF24;      /* Lighter amber                      */
+  --warning-muted:        rgba(245, 158, 11, 0.14);
+  --warning-border:       rgba(245, 158, 11, 0.35);
+  --warning-glow:         rgba(245, 158, 11, 0.30);
+  --gradient-warning:     linear-gradient(135deg, #D97706 0%, #F59E0B 100%);
 
   /* Borders & Shadows */
-  --border:           #2a2a2e;
-  --border-subtle:    #1f1f23;
-  --shadow-sm:        0 1px 3px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.3);
-  --shadow-md:        0 4px 16px rgba(0,0,0,0.6), 0 2px 6px rgba(0,0,0,0.4);
-  --shadow-lg:        0 12px 40px rgba(0,0,0,0.7), 0 4px 12px rgba(0,0,0,0.5);
-  --shadow-accent:    0 0 20px var(--accent-glow);
+  --border:               #1E293B;      /* Standard divider / container border*/
+  --border-subtle:        #131B2B;      /* Subtle sub-divider                 */
+  --glass-border:         rgba(255, 255, 255, 0.08); /* Frosted glass border */
+  --glass-border-hover:   rgba(139, 92, 246, 0.40);
+
+  --shadow-sm:            0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md:            0 4px 20px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.35);
+  --shadow-lg:            0 14px 44px rgba(0, 0, 0, 0.7), 0 4px 14px rgba(0, 0, 0, 0.5);
+  --shadow-glass:         0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+
+  /* Glow Shadows */
+  --shadow-accent:        0 0 24px var(--accent-glow);
+  --shadow-accent-lg:     0 0 40px var(--accent-glow-strong);
+  --shadow-secondary:     0 0 24px var(--accent-secondary-glow);
+  --shadow-success:       0 0 24px var(--success-glow);
+  --shadow-warning:       0 0 24px var(--warning-glow);
 
   /* Radii */
-  --radius-sm:        6px;
-  --radius-md:        10px;
-  --radius-lg:        16px;
-  --radius-xl:        24px;
-  --radius-pill:      999px;
+  --radius-sm:            6px;
+  --radius-md:            10px;
+  --radius-lg:            16px;
+  --radius-xl:            24px;
+  --radius-pill:          999px;
 
   /* Typography */
-  --font-sans:        'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono:        'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --font-sans:            'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:            'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
 
-  /* Spacing scale */
+  /* Spacing Scale */
   --space-1:  4px;
   --space-2:  8px;
   --space-3:  12px;
@@ -59,7 +107,7 @@
 
   /* Transitions */
   --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
-  --transition:  200ms var(--ease-out);
+  --transition:  220ms var(--ease-out);
 }
 
 /* ─── Reset & Base ───────────────────────────────────────── */
@@ -83,6 +131,11 @@ body {
   line-height: 1.6;
   color: var(--text-secondary);
   background-color: var(--bg-base);
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(139, 92, 246, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 82% 78%, rgba(6, 182, 212, 0.06) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.04) 0%, transparent 60%);
+  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -101,12 +154,12 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-sans);
   font-weight: 600;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: 1.25;
   letter-spacing: -0.02em;
 }
 
-h1 { font-size: clamp(2rem, 5vw, 3rem); }
-h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
+h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; letter-spacing: -0.03em; }
+h2 { font-size: clamp(1.5rem, 3vw, 2.1rem); letter-spacing: -0.025em; }
 h3 { font-size: 1.25rem; }
 h4 { font-size: 1.05rem; }
 
@@ -116,9 +169,12 @@ p:last-child { margin-bottom: 0; }
 a {
   color: var(--accent);
   text-decoration: none;
-  transition: color var(--transition);
+  transition: color var(--transition), text-shadow var(--transition);
 }
-a:hover { color: var(--accent-hover); }
+a:hover {
+  color: var(--accent-hover);
+  text-shadow: 0 0 12px var(--accent-glow);
+}
 
 code, pre {
   font-family: var(--font-mono);
@@ -126,25 +182,25 @@ code, pre {
 }
 
 code {
-  padding: 2px 6px;
+  padding: 2px 7px;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  color: var(--accent-hover);
+  color: var(--accent-secondary-hover);
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────── */
 
-::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar        { width: 7px; height: 7px; }
 ::-webkit-scrollbar-track  { background: var(--bg-base); }
 ::-webkit-scrollbar-thumb  { background: var(--border); border-radius: var(--radius-pill); }
-::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-muted); border-color: var(--accent-border); }
 
 /* ─── Selection ──────────────────────────────────────────── */
 
 ::selection {
   background: var(--accent-muted);
-  color: var(--text-primary);
+  color: #FFFFFF;
 }
 
 /* ─── Focus ──────────────────────────────────────────────── */
@@ -155,7 +211,82 @@ code {
   border-radius: var(--radius-sm);
 }
 
-/* ─── Utility Classes ────────────────────────────────────── */
+/* ─── Custom Glassmorphism Utilities ─────────────────────── */
+
+.vp-glass,
+.glass-panel {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-glass);
+}
+
+.glass-card {
+  background: linear-gradient(
+    135deg,
+    rgba(17, 24, 39, 0.75) 0%,
+    rgba(11, 15, 23, 0.85) 100%
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-glass);
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.glass-card:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--shadow-glass), 0 0 20px rgba(139, 92, 246, 0.15);
+  transform: translateY(-2px);
+}
+
+/* ─── Smooth Glow Utilities ──────────────────────────────── */
+
+.glow-violet,
+.glow-primary {
+  box-shadow: 0 0 25px var(--accent-glow);
+}
+
+.glow-cyan,
+.glow-secondary {
+  box-shadow: 0 0 25px var(--accent-secondary-glow);
+}
+
+.glow-emerald,
+.glow-success {
+  box-shadow: 0 0 25px var(--success-glow);
+}
+
+.glow-amber,
+.glow-warning {
+  box-shadow: 0 0 25px var(--warning-glow);
+}
+
+.glow-subtle {
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+}
+
+.text-glow-violet,
+.text-glow-primary {
+  text-shadow: 0 0 16px var(--accent-glow-strong);
+}
+
+.text-glow-cyan {
+  text-shadow: 0 0 16px var(--accent-secondary-glow);
+}
+
+.border-glow-violet {
+  border-color: var(--accent-border) !important;
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.border-glow-cyan {
+  border-color: var(--accent-secondary-border) !important;
+  box-shadow: 0 0 15px var(--accent-secondary-glow);
+}
+
+/* ─── Standard Utility Classes ───────────────────────────── */
 
 .sr-only {
   position: absolute;
@@ -167,14 +298,18 @@ code {
   border: 0;
 }
 
-.text-accent    { color: var(--accent); }
-.text-primary   { color: var(--text-primary); }
-.text-secondary { color: var(--text-secondary); }
-.text-muted     { color: var(--text-muted); }
+.text-accent          { color: var(--accent); }
+.text-accent-cyan     { color: var(--accent-secondary); }
+.text-primary         { color: var(--text-primary); }
+.text-secondary       { color: var(--text-secondary); }
+.text-muted           { color: var(--text-muted); }
+.text-success         { color: var(--success-hover); }
+.text-warning         { color: var(--warning-hover); }
 
-.font-mono { font-family: var(--font-mono); }
-.font-medium { font-weight: 500; }
-.font-semibold { font-weight: 600; }
+.font-mono    { font-family: var(--font-mono); }
+.font-medium  { font-weight: 500; }
+.font-semibold{ font-weight: 600; }
+.font-bold    { font-weight: 700; }
 
 .truncate {
   overflow: hidden;

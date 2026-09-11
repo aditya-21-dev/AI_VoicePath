@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 // Maps inference_type → human-readable label and colour tokens
 const TYPE_META = {
   explicit: {
@@ -17,7 +15,7 @@ const TYPE_META = {
   inferred: {
     label: 'Inferred from role',
     dotClass: 'vp-legend-dot--inferred',
-    badgeStyle: { background: 'rgba(229,52,58,0.15)', color: '#ff4a50', border: '1px solid rgba(229,52,58,0.4)' },
+    badgeStyle: { background: 'rgba(139,92,246,0.16)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.4)' },
     fillClass: 'vp-skill-card__bar-fill--inferred',
   },
 }

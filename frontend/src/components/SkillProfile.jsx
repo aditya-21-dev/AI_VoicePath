@@ -46,10 +46,18 @@ export default function SkillProfile({ analysisResult, onStartOver, onFindJobs }
   }
 
   // Pick an emoji avatar based on domain
-  const avatarEmoji = profile.domain?.toLowerCase().includes('data') ? '📊'
-    : profile.domain?.toLowerCase().includes('sales') ? '📈'
-    : profile.domain?.toLowerCase().includes('retail') ? '🛍️'
-    : '🎯'
+  const avatarEmoji =
+    profile.domain?.toLowerCase().includes('textile') ||
+    profile.domain?.toLowerCase().includes('apparel') ||
+    profile.domain?.toLowerCase().includes('garment')
+      ? '🧵'
+      : profile.domain?.toLowerCase().includes('data')
+      ? '📊'
+      : profile.domain?.toLowerCase().includes('sales')
+      ? '📈'
+      : profile.domain?.toLowerCase().includes('retail')
+      ? '🛍️'
+      : '🎯'
 
   const topSkill = [...skills].sort((a, b) => b.confidence - a.confidence)[0]
 

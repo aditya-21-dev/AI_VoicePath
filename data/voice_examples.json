@@ -1,0 +1,30 @@
+{
+  "examples": [
+    {
+      "id": "retail-en",
+      "language": "en",
+      "transcript": "I have worked in a shop for four years. I manage stock and handle customers.",
+      "expected_profile": {
+        "domain": ["Retail"],
+        "experience_years": 4,
+        "responsibilities": ["manage stock", "handle customers"],
+        "skills": ["Inventory Management", "Customer Handling"]
+      }
+    },
+    {
+      "id": "retail-ta-codeswitch",
+      "language": "ta",
+      "transcript": "???? shop-?? stock manage ?????????. customers-? handle ?????????.",
+      "expected_profile": {
+        "domain": ["Retail"],
+        "skills": ["Inventory Management", "Customer Handling"]
+      }
+    },
+    {
+      "id": "implicit-inventory",
+      "language": "en",
+      "transcript": "I keep track of materials coming in and going out.",
+      "expected_profile": {"skills": ["Inventory Management"]}
+    }
+  ]
+}

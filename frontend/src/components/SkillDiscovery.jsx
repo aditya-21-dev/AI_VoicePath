@@ -172,7 +172,7 @@ export default function SkillDiscovery({ analysisResult, onContinue, onStartOver
 
       {/* Main Content: Either Grid or Interactive Skill Map */}
       {viewMode === 'map' ? (
-        <SkillMap skills={skills} profileName={profile.name} />
+      <SkillMap skills={skills} profileName={analysisResult?.profile?.name ?? 'Candidate'} />
       ) : (
         <div
           className="vp-discovery__grid"

@@ -250,8 +250,8 @@ export default function WhatIfSimulator({
 
       {/* Clean Prototype Disclaimer */}
       <div className="vp-whatif-disclaimer-box">
-        <p className="text-muted" style={{ fontSize: '0.78rem', textAlign: 'center', lineHeight: 1.5 }}>
-          ⚠️ <strong>Prototype Simulation Disclaimer:</strong> Match projections and salary ranges are calculated using VoicePath&apos;s experimental Edutech predictive market algorithm. Values are illustrative for hackathon demonstration.
+        <p className="text-muted" style={{ fontSize: '0.8rem', textAlign: 'center', lineHeight: 1.5 }}>
+          ⚠️ <strong>VoicePath Projection:</strong> Projection is an illustrative estimate, not an official government score.
         </p>
       </div>
     </div>

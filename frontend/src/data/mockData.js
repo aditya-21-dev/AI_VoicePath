@@ -102,6 +102,13 @@ export const TEXTILE_WORKER_PROFILE = {
   transcript: DEMO_TEXTILE_TRANSCRIPT,
 };
 
+export const DEFAULT_USER_LOCATION = {
+  lat: 13.0524,
+  lng: 80.2508,
+  label: 'Your Location (Candidate Priya Sharma · Demo)',
+  district: 'Chennai Metropolitan',
+};
+
 export const TEXTILE_WORKER_OPPORTUNITIES = [
   {
     id: 'opp_textile_001',
@@ -111,11 +118,18 @@ export const TEXTILE_WORKER_OPPORTUNITIES = [
     location: 'Tiruvallur / Chennai, TN (On-site)',
     salary_range: 'INR 4.5L - 6.2L / yr',
     match_score: 0.92,
+    eligibility: '100% Eligible',
+    is_eligible: true,
+    source_label: 'National Career Service (NCS) Portal [Demo]',
+    source_url: 'https://www.ncs.gov.in/job-search',
+    lat: 13.1432,
+    lng: 79.9088,
     badges: ['Verified Employer', 'High Demand', 'District Eligible', 'NSQF Level 5'],
     breakdown: {
       skill_similarity: 0.94,
       experience_match: 0.91,
       district_eligibility: 0.96,
+      eligibility_score: 1.0,
     },
     why_matched:
       'Your 4 years of hands-on industrial sewing and fabric inspection directly satisfy Arvind Fashions tier-1 quality benchmark specs.',
@@ -138,11 +152,18 @@ export const TEXTILE_WORKER_OPPORTUNITIES = [
     location: 'Tirupur, TN (On-site)',
     salary_range: 'INR 4.2L - 5.8L / yr',
     match_score: 0.88,
+    eligibility: '100% Eligible',
+    is_eligible: true,
+    source_label: 'Tamil Nadu Skill Development Corp (TNSDC) [Demo]',
+    source_url: 'https://www.naanmudhalvan.tn.gov.in',
+    lat: 11.1085,
+    lng: 77.3411,
     badges: ['Immediate Joining', 'Fast Track Interview', 'District Eligible'],
     breakdown: {
       skill_similarity: 0.89,
       experience_match: 0.93,
       district_eligibility: 0.92,
+      eligibility_score: 1.0,
     },
     why_matched:
       'Strong dual proficiency in stock inventory control and shop-floor team guidance satisfies supervisor requirements for garment assembly lines.',
@@ -164,11 +185,18 @@ export const TEXTILE_WORKER_OPPORTUNITIES = [
     location: 'Chennai, TN (On-site)',
     salary_range: 'INR 3.8L - 5.2L / yr',
     match_score: 0.84,
+    eligibility: '100% Eligible',
+    is_eligible: true,
+    source_label: 'Retailers Association of India (RAI) [Demo]',
+    source_url: 'https://rai.net.in',
+    lat: 13.0827,
+    lng: 80.2707,
     badges: ['Verified Employer', 'Retail Excellence', 'District Eligible'],
     breakdown: {
       skill_similarity: 0.86,
       experience_match: 0.88,
       district_eligibility: 0.95,
+      eligibility_score: 1.0,
     },
     why_matched:
       'Demonstrated excellence in customer handling, POS billing, and fabric weave grading matches Fabindia flagship store standards.',
@@ -191,11 +219,18 @@ export const TEXTILE_WORKER_OPPORTUNITIES = [
     location: 'Bangalore, KA',
     salary_range: 'INR 4.0L - 5.5L / yr',
     match_score: 0.81,
+    eligibility: '95% Eligible',
+    is_eligible: true,
+    source_label: 'Apparel Export Promotion Council (AEPC) [Demo]',
+    source_url: 'https://www.aepcindia.com',
+    lat: 12.7409,
+    lng: 77.8253,
     badges: ['Export Unit', 'Skill Certified'],
     breakdown: {
       skill_similarity: 0.84,
       experience_match: 0.85,
       district_eligibility: 0.80,
+      eligibility_score: 0.95,
     },
     why_matched:
       'Machine proficiency and garment alteration experience qualify for sample construction and trial runs.',

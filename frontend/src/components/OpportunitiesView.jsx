@@ -4,12 +4,16 @@ import MatchBreakdown from './MatchBreakdown.jsx'
 import SkillGap from './SkillGap.jsx'
 import LearningPath from './LearningPath.jsx'
 import WhatIfSimulator from './WhatIfSimulator.jsx'
+import OpportunityMap from './OpportunityMap.jsx'
+import SkillAnalytics from './SkillAnalytics.jsx'
 import Toast from './Toast.jsx'
 
 import {
   TEXTILE_WORKER_OPPORTUNITIES,
   TEXTILE_WORKER_SKILL_GAP,
   TEXTILE_WORKER_LEARNING_PATH,
+  TEXTILE_WORKER_SKILLS,
+  DEFAULT_USER_LOCATION,
 } from '../data/mockData.js'
 
 /**
@@ -36,6 +40,7 @@ export default function OpportunitiesView({
   const [activeTab, setActiveTab]         = useState(initialTab)
   const [selectedDistrict, setSelectedDistrict] = useState('all')
   const [selectedOppForExplain, setSelectedOppForExplain] = useState(null)
+  const [selectedOppId, setSelectedOppId] = useState(null)
   const [toastMessage, setToastMessage]   = useState('')
   const [toastType, setToastType]         = useState('success')
 
@@ -104,9 +109,22 @@ export default function OpportunitiesView({
             aria-selected={activeTab === 'matches'}
             type="button"
           >
-            <span>🎯 Verified Roles</span>
+            <span>🎯 Verified Roles &amp; Map</span>
             <span className="vp-badge vp-badge--cyan" style={{ fontSize: '0.65rem', marginLeft: 6 }}>
               Top 3
+            </span>
+          </button>
+
+          <button
+            className={`vp-hub-tab-btn ${activeTab === 'analytics' ? 'active' : ''}`}
+            onClick={() => setActiveTab('analytics')}
+            role="tab"
+            aria-selected={activeTab === 'analytics'}
+            type="button"
+          >
+            <span>📊 Analytics</span>
+            <span className="vp-badge vp-badge--accent" style={{ fontSize: '0.65rem', marginLeft: 6 }}>
+              Recharts
             </span>
           </button>
 
@@ -145,7 +163,7 @@ export default function OpportunitiesView({
         </div>
       </div>
 
-      {/* ─── TAB 1: Matched Opportunities ───────────────────── */}
+      {/* ─── TAB 1: Matched Opportunities + Interactive Map ──── */}
       {activeTab === 'matches' && (
         <section className="vp-matches-section" aria-label="Matched Career Opportunities">
           {/* District Filter Bar */}
@@ -187,36 +205,69 @@ export default function OpportunitiesView({
             </div>
           </div>
 
-          {/* Opportunities List */}
-          {filteredOpps.length > 0 ? (
-            <div className="vp-opps-grid" role="feed" aria-label="Matching role listings">
-              {filteredOpps.map((opp) => (
-                <OpportunityCard
-                  key={opp.id}
-                  opportunity={opp}
-                  onExplain={handleExplain}
-                  onViewGap={handleViewGap}
-                  onBookmark={(title) => triggerToast(`Saved role: "${title}" to your profile!`, 'success')}
-                />
-              ))}
+          {/* Desktop: Split Cards | Map; Mobile: Cards ↓ Map */}
+          <div className="vp-opps-and-map-layout">
+            <div className="vp-opps-column">
+              {filteredOpps.length > 0 ? (
+                <div className="vp-opps-grid" role="feed" aria-label="Matching role listings">
+                  {filteredOpps.map((opp) => (
+                    <div
+                      key={opp.id}
+                      className={`vp-opp-card-wrapper ${selectedOppId === opp.id ? 'active-selection' : ''}`}
+                      onClick={() => setSelectedOppId(opp.id)}
+                    >
+                      <OpportunityCard
+                        opportunity={opp}
+                        onExplain={handleExplain}
+                        onViewGap={handleViewGap}
+                        onBookmark={(title) => triggerToast(`Saved role: "${title}" to your profile!`, 'success')}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* Robust Empty State */
+                <div className="vp-empty-state glass-card">
+                  <span className="vp-empty-icon">🔍</span>
+                  <h3 className="vp-empty-title text-primary">No opportunities found in this district</h3>
+                  <p className="vp-empty-desc text-secondary">
+                    No active roles match your speech profile in the selected cluster right now. Try expanding your search.
+                  </p>
+                  <button
+                    className="vp-btn vp-btn--secondary vp-btn--sm"
+                    onClick={() => setSelectedDistrict('all')}
+                    type="button"
+                  >
+                    Reset to All Districts
+                  </button>
+                </div>
+              )}
             </div>
-          ) : (
-            /* Robust Empty State */
-            <div className="vp-empty-state glass-card">
-              <span className="vp-empty-icon">🔍</span>
-              <h3 className="vp-empty-title text-primary">No opportunities found in this district</h3>
-              <p className="vp-empty-desc text-secondary">
-                No active roles match your speech profile in the selected cluster right now. Try expanding your search.
-              </p>
-              <button
-                className="vp-btn vp-btn--secondary vp-btn--sm"
-                onClick={() => setSelectedDistrict('all')}
-                type="button"
-              >
-                Reset to All Districts
-              </button>
+
+            {/* Map Column */}
+            <div className="vp-opps-map-column">
+              <OpportunityMap
+                opportunities={filteredOpps}
+                userLocation={DEFAULT_USER_LOCATION}
+                selectedOppId={selectedOppId}
+                onSelectOpportunity={(opp) => {
+                  setSelectedOppId(opp.id)
+                  triggerToast(`Selected ${opp.company} (${opp.district})`, 'info')
+                }}
+              />
             </div>
-          )}
+          </div>
+        </section>
+      )}
+
+      {/* ─── TAB 2: Visual Analytics (Recharts) ───────────────── */}
+      {activeTab === 'analytics' && (
+        <section className="vp-analytics-section" aria-label="Competency Analytics">
+          <SkillAnalytics
+            skills={TEXTILE_WORKER_SKILLS}
+            breakdown={filteredOpps[0]?.breakdown}
+            gapData={TEXTILE_WORKER_SKILL_GAP}
+          />
         </section>
       )}
 

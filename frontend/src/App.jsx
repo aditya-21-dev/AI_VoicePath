@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import MobileNav from './components/MobileNav.jsx'
 
 import './index.css'
 import './App.css'
@@ -47,6 +48,7 @@ export default function App() {
   const [analysisResult, setAnalysisResult] = useState(null)
   const [isLoading,      setIsLoading]      = useState(false)
   const [apiError,       setApiError]       = useState('')
+  const [simpleView,     setSimpleView]     = useState(false)
 
   // ── Stage 1 → 2: Voice recorded, move to transcript review ─
   const handleTranscriptReady = useCallback((text, lang) => {
@@ -208,6 +210,15 @@ export default function App() {
       </main>
 
       <Footer />
+
+      {/* Mobile bottom navigation — visible < 768px */}
+      <MobileNav
+        stage={stage}
+        onNavigate={(s) => setStage(s)}
+        onStartOver={handleStartOver}
+        simpleView={simpleView}
+        onToggleSimpleView={() => setSimpleView((v) => !v)}
+      />
     </div>
   )
 }

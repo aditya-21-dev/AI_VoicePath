@@ -221,29 +221,67 @@ export default function VoiceRecorder({ language = 'en-IN', onTranscriptReady })
           hasSpeechSupport={hasSpeechSupport}
         />
 
-        {/* Status prompt */}
+        {/* Status prompt & CTA Row */}
         <div className="vp-recorder__status-banner">
           <p className={`vp-recorder__status ${isRecording ? 'listening' : ''}`}>
             {isRecording
-              ? 'Click the orb to stop & analyze'
+              ? 'Listening to your speech… Click to stop & analyze'
               : isProcessing
               ? 'Synthesizing speech input…'
               : hasSpeechSupport
-              ? 'Click the orb to begin speaking'
+              ? 'Click to start speaking about your work experience'
               : 'Voice API unavailable on this browser — use Demo below'}
           </p>
 
-          {isRecording && (
+          {/* Primary CTA: "Start Speaking" / "Stop & Analyze" & Secondary "Demo Mode" */}
+          <div className="vp-recorder__cta-actions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-3)', marginTop: 'var(--space-4)', flexWrap: 'wrap' }}>
             <button
-              className="vp-btn vp-btn--ghost vp-btn--sm"
-              onClick={handleRetry}
+              id="vp-start-speaking-btn"
+              className={`vp-btn vp-btn--primary vp-btn--lg ${isRecording ? 'vp-btn--recording' : 'glow-violet'}`}
+              onClick={isRecording ? handleStop : startRecording}
               type="button"
-              aria-label="Restart recording"
-              style={{ marginTop: 'var(--space-2)' }}
+              disabled={isProcessing || (!hasSpeechSupport && !isRecording)}
             >
-              Cancel &amp; Restart
+              {isRecording ? (
+                <>
+                  <span className="vp-orb-stop-square" style={{ width: 12, height: 12, display: 'inline-block', background: '#fff', borderRadius: 2 }} />
+                  <span>Stop &amp; Analyze</span>
+                </>
+              ) : (
+                <>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                    <rect x="9" y="2" width="6" height="12" rx="3" />
+                    <path d="M5 11a7 7 0 0 0 14 0" />
+                    <line x1="12" y1="18" x2="12" y2="22" />
+                  </svg>
+                  <span>Start Speaking</span>
+                </>
+              )}
             </button>
-          )}
+
+            {!isRecording && (
+              <button
+                className="vp-btn vp-btn--secondary vp-btn--lg"
+                onClick={() => handleDemoMode(DEMO_TEXTILE_TRANSCRIPT)}
+                type="button"
+                disabled={isProcessing}
+                title="Run immediate demonstration with Priya Sharma profile"
+              >
+                <span>⚡ Demo Mode</span>
+              </button>
+            )}
+
+            {isRecording && (
+              <button
+                className="vp-btn vp-btn--ghost vp-btn--sm"
+                onClick={handleRetry}
+                type="button"
+                aria-label="Restart recording"
+              >
+                Cancel &amp; Restart
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

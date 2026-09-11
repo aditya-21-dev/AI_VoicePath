@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import EvidenceCard from './EvidenceCard.jsx'
+import ConfidenceRing from './ConfidenceRing.jsx'
 
 // Badge colours & styles per inference_type
 const TYPE_STYLE = {
@@ -23,58 +24,6 @@ const TYPE_STYLE = {
   },
 }
 
-/**
- * ConfidenceRing — SVG Circular Progress Meter with gradient stroke.
- * @param {{ pct: number, strokeColor?: string, size?: number }} props
- */
-function ConfidenceRing({ pct, size = 48 }) {
-  const radius = 18
-  const circumference = 2 * Math.PI * radius
-  const strokeDashoffset = circumference - (pct / 100) * circumference
-
-  return (
-    <div className="vp-confidence-ring-wrapper" style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox="0 0 48 48" className="vp-confidence-ring">
-        <defs>
-          <linearGradient id={`ring-grad-${pct}`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#8B5CF6" />
-            <stop offset="60%" stopColor="#6366F1" />
-            <stop offset="100%" stopColor="#06B6D4" />
-          </linearGradient>
-        </defs>
-
-        {/* Background track */}
-        <circle
-          cx="24"
-          cy="24"
-          r={radius}
-          fill="none"
-          stroke="rgba(255, 255, 255, 0.08)"
-          strokeWidth="3.5"
-        />
-
-        {/* Animated fill ring */}
-        <circle
-          cx="24"
-          cy="24"
-          r={radius}
-          fill="none"
-          stroke={`url(#ring-grad-${pct})`}
-          strokeWidth="3.5"
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round"
-          style={{
-            transform: 'rotate(-90deg)',
-            transformOrigin: '50% 50%',
-            transition: 'stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-          }}
-        />
-      </svg>
-      <span className="vp-confidence-ring-value font-mono">{pct}%</span>
-    </div>
-  )
-}
 
 /**
  * SkillCard — shows a single detected skill with circular Confidence Ring,

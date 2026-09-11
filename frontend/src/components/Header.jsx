@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import LanguageSelector from './LanguageSelector.jsx'
+import ThemeToggle from './ThemeToggle.jsx'
 
 const STAGES = ['intake', 'reviewing', 'discovering', 'profile', 'opportunities']
 
@@ -118,8 +119,11 @@ export default function Header({ stage, language, onLanguageChange }) {
         })}
       </nav>
 
-      {/* Actions: Accessibility Toggle + Language + Avatar */}
+      {/* Actions: Theme Toggle + Accessibility + Language + Avatar */}
       <div className="vp-nav__right">
+        {/* Global Light / Dark Theme Switcher */}
+        <ThemeToggle />
+
         {/* Accessibility contrast toggle */}
         <button
           className={`vp-a11y-btn ${highContrast ? 'active' : ''}`}

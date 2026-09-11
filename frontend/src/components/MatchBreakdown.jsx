@@ -23,6 +23,7 @@ export default function MatchBreakdown({ opportunity, onClose, onViewGap }) {
   const skillSimPct = Math.round(breakdown.skill_similarity * 100)
   const expMatchPct = Math.round(breakdown.experience_match * 100)
   const distEligPct = Math.round(breakdown.district_eligibility * 100)
+  const eligibilityPct = Math.round((breakdown.eligibility_score ?? 1.0) * 100)
   const overallPct  = Math.round(opportunity.match_score * 100)
 
   return (
@@ -100,13 +101,29 @@ export default function MatchBreakdown({ opportunity, onClose, onViewGap }) {
               <span className="vp-metric-name">
                 <span className="vp-metric-icon">📍</span> District &amp; Cluster Eligibility
               </span>
-              <span className="vp-metric-pct font-mono text-success">{distEligPct}%</span>
+              <span className="vp-metric-pct font-mono" style={{ color: '#F59E0B' }}>{distEligPct}%</span>
             </div>
             <div className="vp-metric-track">
-              <div className="vp-metric-fill emerald" style={{ width: `${distEligPct}%` }} />
+              <div className="vp-metric-fill amber" style={{ width: `${distEligPct}%` }} />
             </div>
             <p className="vp-metric-subtext text-muted">
               Located in target corridor ({opportunity.district || 'Chennai / Tiruvallur'}).
+            </p>
+          </div>
+
+          {/* Pillar 4: Role Eligibility */}
+          <div className="vp-metric-item">
+            <div className="vp-metric-label-row">
+              <span className="vp-metric-name">
+                <span className="vp-metric-icon">✓</span> Candidate Eligibility
+              </span>
+              <span className="vp-metric-pct font-mono text-success">{eligibilityPct}%</span>
+            </div>
+            <div className="vp-metric-track">
+              <div className="vp-metric-fill emerald" style={{ width: `${eligibilityPct}%` }} />
+            </div>
+            <p className="vp-metric-subtext text-muted">
+              Satisfies statutory and employer prerequisites ({opportunity.eligibility || '100% Eligible'}).
             </p>
           </div>
         </div>

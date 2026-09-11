@@ -37,13 +37,20 @@ export default function OpportunityCard({
     <article className="vp-opp-card glass-card vp-fade-in" aria-label={`${opportunity.title} at ${opportunity.company}`}>
       <div className="vp-opp-card__top">
         <div className="vp-opp-card__meta-left">
-          {/* District data pill */}
-          <div className="vp-opp-district-tag">
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M8 1a5 5 0 0 0-5 5c0 3.5 5 9 5 9s5-5.5 5-9a5 5 0 0 0-5-5z" stroke="currentColor" strokeWidth="1.6" />
-              <circle cx="8" cy="6" r="1.8" fill="currentColor" />
-            </svg>
-            <span>{opportunity.district || 'Chennai / Tiruvallur'}</span>
+          {/* District data pill & Eligibility Badge */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
+            <div className="vp-opp-district-tag">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M8 1a5 5 0 0 0-5 5c0 3.5 5 9 5 9s5-5.5 5-9a5 5 0 0 0-5-5z" stroke="currentColor" strokeWidth="1.6" />
+                <circle cx="8" cy="6" r="1.8" fill="currentColor" />
+              </svg>
+              <span>{opportunity.district || 'Chennai / Tiruvallur'}</span>
+            </div>
+
+            {/* Prominent Eligibility Pill */}
+            <span className="vp-badge vp-badge--success font-mono" style={{ fontSize: '0.72rem' }}>
+              ✓ {opportunity.eligibility || 'Eligible'}
+            </span>
           </div>
 
           <h3 className="vp-opp-title text-primary">{opportunity.title}</h3>
@@ -56,7 +63,7 @@ export default function OpportunityCard({
         <div className="vp-opp-match-box">
           <div className="vp-opp-match-score-pill">
             <span className="vp-opp-match-pct font-mono">{matchPct}%</span>
-            <span className="vp-opp-match-label">VoicePath Match Score</span>
+            <span className="vp-opp-match-label">VoicePath Match</span>
           </div>
           <button
             className={`vp-opp-save-btn ${saved ? 'saved' : ''}`}
@@ -123,7 +130,7 @@ export default function OpportunityCard({
         )}
       </div>
 
-      {/* Card Actions */}
+      {/* Card Actions: Why Match, View Gap, View Source */}
       <div className="vp-opp-card__footer">
         <button
           className="vp-btn vp-btn--secondary vp-btn--sm"
@@ -131,7 +138,7 @@ export default function OpportunityCard({
           type="button"
           aria-label={`View why ${opportunity.title} matches your speech profile`}
         >
-          <span>🔍 Why does this match?</span>
+          <span>🔍 Why this match?</span>
         </button>
 
         <button
@@ -140,11 +147,24 @@ export default function OpportunityCard({
           type="button"
           aria-label={`View skill gap and upskilling path for ${opportunity.title}`}
         >
-          <span>View Skill Gap &amp; Path</span>
+          <span>Skill Gap</span>
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
+
+        {opportunity.source_url && (
+          <a
+            href={opportunity.source_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="vp-btn vp-btn--ghost vp-btn--sm"
+            title={`View source listing: ${opportunity.source_label || 'National Portal'}`}
+            style={{ fontSize: '0.75rem' }}
+          >
+            <span>View Source ↗</span>
+          </a>
+        )}
       </div>
 
       {/* Mandatory Disclaimer */}

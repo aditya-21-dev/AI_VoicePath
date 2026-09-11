@@ -1,3 +1,5 @@
+import SkillAnalytics from './SkillAnalytics.jsx'
+
 // Fill colours by inference type — deliberately human-readable (no AI jargon)
 const FILL_BY_TYPE = {
   explicit: 'linear-gradient(90deg,#16a34a,#4ade80)',
@@ -188,6 +190,11 @@ export default function SkillProfile({ analysisResult, onStartOver, onFindJobs }
             </div>
           )
         })}
+      </div>
+
+      {/* Recharts Visual Intelligence Analytics */}
+      <div style={{ marginTop: 'var(--space-6)', marginBottom: 'var(--space-6)' }}>
+        <SkillAnalytics skills={skills} />
       </div>
 
       {/* Confidence note — no AI jargon */}

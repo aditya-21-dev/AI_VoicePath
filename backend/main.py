@@ -7,6 +7,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.concurrency import run_in_threadpool
 
@@ -15,6 +16,7 @@ from backend.services.asr import (
     ASRUnavailableError,
     EmptyTranscriptError as ASREmptyTranscriptError,
     InvalidAudioError,
+    UnsupportedLanguageError,
     transcribe_audio,
 )
 from backend.services.extraction import (
@@ -23,6 +25,16 @@ from backend.services.extraction import (
 )
 
 app = FastAPI(title="VoicePath API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
 _MAX_AUDIO_BYTES = 25 * 1024 * 1024
 
 
@@ -104,6 +116,8 @@ async def transcribe(
         raise APIError("INVALID_AUDIO", "The uploaded file is not valid audio.", 400) from exc
     except ASREmptyTranscriptError as exc:
         raise APIError("EMPTY_TRANSCRIPT", "No speech was detected in the uploaded audio.", 422) from exc
+    except UnsupportedLanguageError as exc:
+        raise APIError("UNSUPPORTED_LANGUAGE", str(exc) or "Unsupported transcription language.", 400) from exc
     except ASRUnavailableError as exc:
         raise APIError("ASR_UNAVAILABLE", "Speech recognition service is temporarily unavailable.", 503) from exc
     finally:

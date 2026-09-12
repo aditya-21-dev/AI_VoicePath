@@ -1,336 +1,261 @@
+import { useCallback, useState } from 'react'
+import MobileNav from './components/MobileNav.jsx'
+
+import './index.css'
 import './App.css'
-import { useMemo, useRef, useState } from 'react'
+import './components/components.css'
 
-const API_BASE_URL = 'http://localhost:8000'
+import Header from './components/Header.jsx'
+import VoiceRecorder from './components/VoiceRecorder.jsx'
+import TranscriptReview from './components/TranscriptReview.jsx'
+import AIProcessingTransition from './components/AIProcessingTransition.jsx'
+import SkillDiscovery from './components/SkillDiscovery.jsx'
+import SkillProfile from './components/SkillProfile.jsx'
+import OpportunitiesView from './components/OpportunitiesView.jsx'
 
-const LANGUAGES = [
-  { label: 'English', code: 'en' },
-  { label: 'Tamil', code: 'ta' },
-  { label: 'Hindi', code: 'hi' },
-  { label: 'Telugu', code: 'te' },
-  { label: 'Malayalam', code: 'ml' },
-  { label: 'Kannada', code: 'kn' },
-  { label: 'Bengali', code: 'bn' },
-  { label: 'Marathi', code: 'mr' },
-]
+import { extractProfileFromTranscript } from './services/api.js'
 
-const REQUEST_TIMEOUT_MS = 45000
-
-function requestWithTimeout(url, options = {}) {
-  const controller = new AbortController()
-  const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
-
-  return fetch(url, {
-    ...options,
-    signal: controller.signal,
-  }).finally(() => window.clearTimeout(timeoutId))
+const STAGE = {
+  INTAKE: 'intake',
+  REVIEWING: 'reviewing',
+  DISCOVERING: 'discovering',
+  PROFILE: 'profile',
+  OPPORTUNITIES: 'opportunities',
 }
 
-function getApiError(error, fallbackMessage) {
-  if (error?.name === 'AbortError') {
-    return 'The backend took too long to respond. Please retry.'
-  }
+function normalizeProfileResponse(response, transcript, language, asrConfidence) {
+  const profile = response?.profile ?? response
+  const skills = profile?.skills ?? response?.skills ?? []
 
-  return error?.message || fallbackMessage
-}
-
-async function readErrorMessage(response, fallbackMessage) {
-  try {
-    const body = await response.json()
-    return body?.detail || body?.error?.message || body?.message || fallbackMessage
-  } catch {
-    return fallbackMessage
+  return {
+    transcript,
+    detected_language: response?.language ?? language,
+    asr_confidence: asrConfidence,
+    profile: {
+      name: profile?.name ?? 'VoicePath Candidate',
+      domain: profile?.domain ?? 'Work Experience',
+      seniority: profile?.seniority ?? 'Profile extracted from speech',
+      experience_years: profile?.experience_years ?? 0,
+      summary: profile?.summary ?? 'Structured profile generated from the reviewed transcript.',
+      roles: profile?.roles ?? [],
+      responsibilities: profile?.responsibilities ?? [],
+      skills,
+    },
   }
 }
 
-function App() {
-  const mediaRecorderRef = useRef(null)
-  const streamRef = useRef(null)
-  const chunksRef = useRef([])
-  const [selectedLanguage, setSelectedLanguage] = useState('ta')
-  const [recordingState, setRecordingState] = useState('idle')
-  const [audioBlob, setAudioBlob] = useState(null)
-  const [transcribeStatus, setTranscribeStatus] = useState('idle')
-  const [profileStatus, setProfileStatus] = useState('idle')
-  const [transcriptResult, setTranscriptResult] = useState(null)
-  const [profile, setProfile] = useState(null)
-  const [error, setError] = useState('')
+function Footer() {
+  return (
+    <footer className="vp-footer" role="contentinfo">
+      <span className="vp-footer__brand">
+        Voice<span className="vp-footer__accent">Path</span>
+      </span>
+      <span>Team Code Red · Edutech Track · 2026</span>
+      <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+        Built with ❤️ &amp; React
+      </span>
+    </footer>
+  )
+}
 
-  const selectedLanguageLabel = useMemo(
-    () => LANGUAGES.find((language) => language.code === selectedLanguage)?.label,
-    [selectedLanguage],
+export default function App() {
+  const [stage, setStage] = useState(STAGE.INTAKE)
+  const [language, setLanguage] = useState('ta')
+  const [transcript, setTranscript] = useState('')
+  const [transcriptMeta, setTranscriptMeta] = useState(null)
+  const [analysisResult, setAnalysisResult] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [apiError, setApiError] = useState('')
+  const [simpleView, setSimpleView] = useState(false)
+
+  const handleTranscriptReady = useCallback((result, selectedLang) => {
+    const text = typeof result === 'string' ? result : result?.transcript
+    const returnedLanguage = typeof result === 'string' ? selectedLang : result?.language
+
+    setTranscript(text ?? '')
+    setTranscriptMeta(typeof result === 'string' ? null : result)
+    setLanguage(returnedLanguage || selectedLang)
+    setApiError('')
+    setStage(STAGE.REVIEWING)
+  }, [])
+
+  const handleConfirm = useCallback(
+    async (editedTranscript) => {
+      setIsLoading(true)
+      setApiError('')
+      setTranscript(editedTranscript)
+
+      const minAnimationDelay = new Promise((resolve) => setTimeout(resolve, 1200))
+
+      try {
+        const [profileResponse] = await Promise.all([
+          extractProfileFromTranscript({
+            transcript: editedTranscript,
+            language,
+          }),
+          minAnimationDelay,
+        ])
+
+        setAnalysisResult(
+          normalizeProfileResponse(
+            profileResponse,
+            editedTranscript,
+            transcriptMeta?.language ?? language,
+            transcriptMeta?.confidence,
+          ),
+        )
+        setStage(STAGE.DISCOVERING)
+      } catch (err) {
+        setApiError(err.message ?? 'Profile extraction failed. Please try again.')
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [language, transcriptMeta],
   )
 
-  const stopStream = () => {
-    streamRef.current?.getTracks().forEach((track) => track.stop())
-    streamRef.current = null
-  }
-
-  const startRecording = async () => {
-    setError('')
-    setTranscriptResult(null)
-    setProfile(null)
-    setAudioBlob(null)
-    chunksRef.current = []
-
-    try {
-      if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error('Audio recording is not available in this browser.')
-      }
-
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      streamRef.current = stream
-      const recorder = new MediaRecorder(stream)
-      mediaRecorderRef.current = recorder
-
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunksRef.current.push(event.data)
-        }
-      }
-
-      recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' })
-        if (blob.size === 0) {
-          setError('No audio was captured. Please record again.')
-          setAudioBlob(null)
-        } else {
-          setAudioBlob(blob)
-        }
-        setRecordingState('recorded')
-        stopStream()
-      }
-
-      recorder.onerror = () => {
-        setError('Recording failed. Please retry.')
-        setRecordingState('idle')
-        stopStream()
-      }
-
-      recorder.start()
-      setRecordingState('recording')
-    } catch (recordingError) {
-      setRecordingState('idle')
-      setError(getApiError(recordingError, 'Could not start recording. Please check microphone access.'))
-      stopStream()
-    }
-  }
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current?.state === 'recording') {
-      mediaRecorderRef.current.stop()
-    }
-  }
-
-  const transcribeAudio = async () => {
-    if (!audioBlob || audioBlob.size === 0) {
-      setError('Record audio before sending it for transcription.')
+  const handleRetry = useCallback(() => {
+    if (stage === STAGE.REVIEWING && transcript.trim()) {
+      handleConfirm(transcript)
       return
     }
 
-    setError('')
-    setTranscribeStatus('loading')
-    setProfile(null)
+    setApiError('')
+    setStage(STAGE.INTAKE)
+  }, [handleConfirm, stage, transcript])
 
-    const formData = new FormData()
-    formData.append('audio', audioBlob, 'recording.webm')
-    formData.append('language', selectedLanguage)
+  const handleContinueToProfile = useCallback(() => {
+    setStage(STAGE.PROFILE)
+  }, [])
 
-    try {
-      const response = await requestWithTimeout(`${API_BASE_URL}/api/v1/transcribe`, {
-        method: 'POST',
-        body: formData,
-      })
+  const handleStartOver = useCallback(() => {
+    setStage(STAGE.INTAKE)
+    setTranscript('')
+    setTranscriptMeta(null)
+    setAnalysisResult(null)
+    setApiError('')
+    setIsLoading(false)
+  }, [])
 
-      if (!response.ok) {
-        throw new Error(await readErrorMessage(response, 'Transcription failed. Please retry.'))
-      }
+  const handleReRecord = useCallback(() => {
+    setStage(STAGE.INTAKE)
+    setTranscript('')
+    setTranscriptMeta(null)
+    setApiError('')
+  }, [])
 
-      const result = await response.json()
-      setTranscriptResult(result)
-      setTranscribeStatus('success')
-      await extractProfile(result.transcript)
-    } catch (transcribeError) {
-      setTranscribeStatus('error')
-      setError(getApiError(transcribeError, 'Transcription failed. Please retry.'))
+  const handleFindJobs = useCallback(() => {
+    setStage(STAGE.OPPORTUNITIES)
+  }, [])
+
+  function renderStage() {
+    if (isLoading) {
+      return <AIProcessingTransition />
+    }
+
+    switch (stage) {
+      case STAGE.INTAKE:
+        return (
+          <VoiceRecorder
+            language={language}
+            onTranscriptReady={handleTranscriptReady}
+          />
+        )
+
+      case STAGE.REVIEWING:
+        return (
+          <TranscriptReview
+            transcript={transcript}
+            language={transcriptMeta?.language ?? language}
+            asrConfidence={transcriptMeta?.confidence}
+            onConfirm={handleConfirm}
+            onReRecord={handleReRecord}
+            isLoading={isLoading}
+          />
+        )
+
+      case STAGE.DISCOVERING:
+        return (
+          <SkillDiscovery
+            analysisResult={analysisResult}
+            onContinue={handleContinueToProfile}
+            onStartOver={handleStartOver}
+          />
+        )
+
+      case STAGE.PROFILE:
+        return (
+          <SkillProfile
+            analysisResult={analysisResult}
+            onStartOver={handleStartOver}
+            onFindJobs={handleFindJobs}
+          />
+        )
+
+      case STAGE.OPPORTUNITIES:
+        return (
+          <OpportunitiesView
+            onBackToProfile={() => setStage(STAGE.PROFILE)}
+            onStartOver={handleStartOver}
+          />
+        )
+
+      default:
+        return null
     }
   }
-
-  const extractProfile = async (transcript) => {
-    if (!transcript?.trim()) {
-      setProfileStatus('idle')
-      setError('The transcript was empty, so a profile could not be extracted.')
-      return
-    }
-
-    setProfileStatus('loading')
-
-    try {
-      const response = await requestWithTimeout(`${API_BASE_URL}/api/v1/extract-profile`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcript, language: selectedLanguage }),
-      })
-
-      if (!response.ok) {
-        throw new Error(await readErrorMessage(response, 'Profile extraction failed. Please retry.'))
-      }
-
-      const result = await response.json()
-      setProfile(result)
-      setProfileStatus('success')
-    } catch (profileError) {
-      setProfileStatus('error')
-      setError(getApiError(profileError, 'Profile extraction failed. Please retry.'))
-    }
-  }
-
-  const retry = () => {
-    if (audioBlob) {
-      transcribeAudio()
-    } else {
-      startRecording()
-    }
-  }
-
-  const skills = profile?.skills || profile?.profile?.skills || []
 
   return (
-    <main className="app-shell">
-      <section className="workspace" aria-label="VoicePath recording workspace">
-        <div className="intro">
-          <p className="eyebrow">VoicePath</p>
-          <h1>Speak your experience into a skill profile</h1>
-          <p className="lede">
-            Record audio in your selected language. VoicePath sends the recording to the backend
-            and shows the returned transcript, skills, evidence, and confidence.
-          </p>
-        </div>
+    <div className="vp-app">
+      <Header
+        stage={stage}
+        language={language}
+        onLanguageChange={setLanguage}
+      />
 
-        <div className="control-panel">
-          <label className="field">
-            <span>Language</span>
-            <select
-              value={selectedLanguage}
-              onChange={(event) => setSelectedLanguage(event.target.value)}
-              disabled={recordingState === 'recording' || transcribeStatus === 'loading'}
-            >
-              {LANGUAGES.map((language) => (
-                <option key={language.code} value={language.code}>
-                  {language.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <div className="recorder">
-            <div className={`recording-light ${recordingState}`} aria-hidden="true" />
+      <main
+        id="main-content"
+        className="vp-page"
+        aria-label={`Stage: ${stage}`}
+      >
+        {apiError && !isLoading && (
+          <div
+            className="vp-alert vp-alert--error"
+            role="alert"
+            style={{ marginBottom: 'var(--space-6)', maxWidth: 720, margin: '0 auto var(--space-6)' }}
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true" style={{ flexShrink: 0 }}>
+              <circle cx="9" cy="9" r="8" stroke="currentColor" strokeWidth="1.5" />
+              <line x1="9" y1="5" x2="9" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <circle cx="9" cy="12.5" r="0.8" fill="currentColor" />
+            </svg>
             <div>
-              <strong>{recordingState === 'recording' ? 'Recording' : 'Ready'}</strong>
-              <span>
-                {selectedLanguageLabel} sends as <code>{selectedLanguage}</code>
-              </span>
-            </div>
-          </div>
-
-          <div className="actions">
-            {recordingState === 'recording' ? (
-              <button type="button" className="primary" onClick={stopRecording}>
-                Stop recording
-              </button>
-            ) : (
-              <button type="button" className="primary" onClick={startRecording}>
-                Record voice
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={transcribeAudio}
-              disabled={!audioBlob || transcribeStatus === 'loading'}
-            >
-              {transcribeStatus === 'loading' ? 'Sending audio' : 'Transcribe'}
-            </button>
-          </div>
-
-          {error && (
-            <div className="error" role="alert">
-              <span>{error}</span>
-              <button type="button" onClick={retry}>
+              <strong>Error:</strong> {apiError}
+              <button
+                className="vp-btn vp-btn--ghost vp-btn--sm"
+                onClick={handleRetry}
+                style={{ marginLeft: 'var(--space-3)' }}
+                type="button"
+                aria-label="Retry failed action"
+              >
                 Retry
               </button>
             </div>
-          )}
-        </div>
-      </section>
-
-      <section className="results-grid" aria-label="VoicePath backend results">
-        <article className="panel transcript-panel">
-          <div className="panel-heading">
-            <p className="eyebrow">TranscriptReview</p>
-            <span>{transcribeStatus}</span>
           </div>
-          <p className="transcript">
-            {transcriptResult?.transcript || 'Your transcript will appear here after recording.'}
-          </p>
-          {transcriptResult && (
-            <dl className="meta-grid">
-              <div>
-                <dt>Language</dt>
-                <dd>{transcriptResult.language || selectedLanguage}</dd>
-              </div>
-              <div>
-                <dt>Confidence</dt>
-                <dd>{transcriptResult.confidence ?? 'Not returned'}</dd>
-              </div>
-            </dl>
-          )}
-        </article>
+        )}
 
-        <article className="panel profile-panel">
-          <div className="panel-heading">
-            <p className="eyebrow">SkillProfile</p>
-            <span>{profileStatus}</span>
-          </div>
+        {renderStage()}
+      </main>
 
-          {profile ? (
-            <>
-              <dl className="meta-grid">
-                <div>
-                  <dt>Domain</dt>
-                  <dd>{profile.domain || profile.profile?.domain || 'Not returned'}</dd>
-                </div>
-                <div>
-                  <dt>Experience</dt>
-                  <dd>{profile.experience_years ?? profile.profile?.experience_years ?? 'Not returned'}</dd>
-                </div>
-              </dl>
+      <Footer />
 
-              <div className="skill-list">
-                {skills.length > 0 ? (
-                  skills.map((skill, index) => (
-                    <div className="skill-row" key={`${skill.canonical_name || skill.raw_phrase}-${index}`}>
-                      <div>
-                        <strong>{skill.canonical_name || skill.raw_phrase || 'Unnamed skill'}</strong>
-                        <p>{skill.evidence || 'No evidence returned.'}</p>
-                      </div>
-                      <div className="skill-metrics">
-                        <span>{skill.inference_type || 'unknown'}</span>
-                        <span>{skill.confidence ?? 'n/a'}</span>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="empty">Extracted skills will appear here with evidence and confidence.</p>
-                )}
-              </div>
-            </>
-          ) : (
-            <p className="empty">Profile extraction starts automatically after transcription succeeds.</p>
-          )}
-        </article>
-      </section>
-    </main>
+      <MobileNav
+        stage={stage}
+        onNavigate={(s) => setStage(s)}
+        onStartOver={handleStartOver}
+        simpleView={simpleView}
+        onToggleSimpleView={() => setSimpleView((v) => !v)}
+      />
+    </div>
   )
 }
-
-export default App

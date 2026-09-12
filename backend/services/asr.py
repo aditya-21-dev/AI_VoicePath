@@ -22,8 +22,16 @@ class InvalidAudioError(ASRError):
     pass
 
 
+class UnsupportedLanguageError(ASRError):
+    pass
+
+
 class EmptyTranscriptError(ASRError):
     pass
+
+
+SUPPORTED_LANGUAGES = frozenset({"en", "ta", "hi", "te", "ml", "kn"})
+AUTO_LANGUAGE_CODE = "auto"
 
 
 @dataclass(frozen=True)
@@ -55,9 +63,12 @@ def _configured_demo(language: str | None) -> TranscriptionResult | None:
     transcript = os.getenv("VOICEPATH_DEMO_TRANSCRIPT", "").strip()
     if not transcript:
         return None
+    demo_language = language if language != AUTO_LANGUAGE_CODE else os.getenv("VOICEPATH_DEMO_LANGUAGE", "en")
+    if demo_language not in SUPPORTED_LANGUAGES:
+        raise UnsupportedLanguageError("Detected language is not supported by VoicePath.")
     return TranscriptionResult(
         transcript=transcript,
-        language=language or os.getenv("VOICEPATH_DEMO_LANGUAGE", "en"),
+        language=demo_language,
         confidence=0.65,
     )
 
@@ -90,31 +101,53 @@ def _invalid_input_error(exc: Exception) -> bool:
     return any(term in message for term in ("invalid data", "failed to open", "error opening", "unsupported format"))
 
 
+def _normalize_requested_language(language: str | None) -> tuple[str | None, str]:
+    requested = language.strip().lower() if language else AUTO_LANGUAGE_CODE
+    if requested == AUTO_LANGUAGE_CODE:
+        return None, AUTO_LANGUAGE_CODE
+    if requested in SUPPORTED_LANGUAGES:
+        return requested, requested
+    raise UnsupportedLanguageError(f"Unsupported transcription language: {requested}")
+
+
+def _validated_result_language(info: Any, requested_language: str) -> str:
+    detected = str(getattr(info, "language", "") or "").strip().lower()
+    if requested_language == AUTO_LANGUAGE_CODE:
+        if not detected:
+            raise UnsupportedLanguageError("Detected language is not supported by VoicePath.")
+        if detected not in SUPPORTED_LANGUAGES:
+            raise UnsupportedLanguageError("Detected language is not supported by VoicePath.")
+        return detected
+    return detected or requested_language
+
+
 def transcribe_audio(audio_path: str | Path, language: str | None = None) -> TranscriptionResult:
     """Transcribe one audio file with Faster-Whisper.
 
-    Tamil, English, and some code-switching are supported by Whisper, but
-    accuracy still depends on the recording, accent, and language mix.
+    The six supported single-language modes force Faster-Whisper to that
+    language. Passing "auto" leaves language detection enabled for best-effort
+    two-language code-switching across those languages.
     """
     path = Path(audio_path)
+    forced_language, fallback_language = _normalize_requested_language(language)
     if not path.is_file() or path.stat().st_size == 0 or not _is_probable_audio(path):
         raise InvalidAudioError("The uploaded file is not valid audio.")
-    requested_language = language.strip().lower() if language else None
     try:
         model = get_whisper_model()
-        generated, info = model.transcribe(
-            str(path), language=requested_language, beam_size=5, vad_filter=True
-        )
+        options: dict[str, Any] = {"beam_size": 5, "vad_filter": True, "task": "transcribe"}
+        if forced_language:
+            options["language"] = forced_language
+        generated, info = model.transcribe(str(path), **options)
         segments = list(generated)
     except ASRUnavailableError:
-        demo = _configured_demo(requested_language)
+        demo = _configured_demo(fallback_language)
         if demo:
             return demo
         raise
     except Exception as exc:
         if _invalid_input_error(exc):
             raise InvalidAudioError("The uploaded file is not valid audio.") from exc
-        demo = _configured_demo(requested_language)
+        demo = _configured_demo(fallback_language)
         if demo:
             return demo
         raise ASRUnavailableError("Speech recognition could not complete.") from exc
@@ -122,5 +155,5 @@ def transcribe_audio(audio_path: str | Path, language: str | None = None) -> Tra
     transcript = " ".join(str(getattr(s, "text", "")).strip() for s in segments).strip()
     if not transcript:
         raise EmptyTranscriptError("No speech was detected in the uploaded audio.")
-    detected_language = str(getattr(info, "language", "") or requested_language or "unknown")
+    detected_language = _validated_result_language(info, fallback_language)
     return TranscriptionResult(transcript, detected_language, _confidence(segments))

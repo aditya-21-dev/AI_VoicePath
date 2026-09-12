@@ -43,11 +43,43 @@ def _unique(values: Iterable[str]) -> list[str]:
     return result
 
 
+NUMBER_WORDS = {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+    "ten": 10,
+    "ஒரு": 1,
+    "ஒன்று": 1,
+    "இரண்டு": 2,
+    "மூன்று": 3,
+    "நான்கு": 4,
+    "ஐந்து": 5,
+    "ஆறு": 6,
+    "ஏழு": 7,
+    "எட்டு": 8,
+    "ஒன்பது": 9,
+    "பத்து": 10,
+    "एक": 1,
+    "दो": 2,
+    "तीन": 3,
+    "चार": 4,
+    "पांच": 5,
+    "पाँच": 5,
+}
+YEAR_MARKERS = r"(?:years?|yrs?|வருட(?:ம்|மாக)?|வருஷ(?:ம்|மாக)?|ஆண்டு(?:கள்|களாக)?|साल|वर्ष|సంవత్సరాలు|വർഷം|ವರ್ಷ|বছর)"
+
+
 def _domains(text: str) -> list[str]:
     lowered = text.casefold()
     rules = (
         ("Retail", ("shop", "store", "retail", "supermarket")),
-        ("Software Development", ("software", "developer", "programming", "python", "coding")),
+        ("Software Development", ("software", "developer", "programming", "python", "coding", "react", "website", "web application")),
         ("Data Analytics", ("data analysis", "data analytics", "analyse data", "analyze data")),
         ("Machine Learning", ("machine learning",)),
         ("Cloud Computing", ("cloud infrastructure", "cloud computing", "cloud deployment")),
@@ -59,12 +91,14 @@ def _experience_years(text: str) -> float | None:
     lowered = text.casefold()
     match = re.search(r"\b(?:for|over|about|around)\s+(\d+(?:\.\d+)?)\s*(?:years?|yrs?)\b", lowered)
     match = match or re.search(r"\b(\d+(?:\.\d+)?)\s*(?:years?|yrs?)\s+(?:of\s+)?experience\b", lowered)
+    match = match or re.search(r"(\d+(?:\.\d+)?)\s*" + YEAR_MARKERS, lowered)
     if match:
         return float(match.group(1))
-    words = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10}
-    match = re.search(r"\b(?:for|over|about|around)\s+(" + "|".join(words) + r")\s+years?\b", lowered)
+    word_pattern = "|".join(re.escape(word) for word in sorted(NUMBER_WORDS, key=len, reverse=True))
+    match = re.search(r"\b(?:for|over|about|around)\s+(" + word_pattern + r")\s+years?\b", lowered)
+    match = match or re.search(r"(" + word_pattern + r")\s*" + YEAR_MARKERS, lowered)
     if match:
-        return float(words[match.group(1)])
+        return float(NUMBER_WORDS[match.group(1)])
     match = re.search(r"\bsince\s+(20\d{2})\b", lowered)
     if match and any(token in lowered for token in ("work", "worked", "working", "job", "shop", "role", "experience")):
         years = dt.date.today().year - int(match.group(1))
@@ -79,6 +113,15 @@ def _roles(text: str) -> list[str]:
         role = re.split(r"\s+(?:for|and|where)\s+", match.group(1), maxsplit=1, flags=re.I)[0].strip()
         if 1 <= len(role.split()) <= 5:
             found.append(role.title())
+    for match in re.finditer(
+        r"\b([A-Z]?[A-Za-z][A-Za-z0-9 +#./-]{0,40}\s+(?:developer|engineer|assistant|manager|analyst|designer|tester))\b",
+        text,
+        re.I,
+    ):
+        if any(cue in text.casefold() for cue in ("work", "worked", "working", "வேலை", "ஆக", "काम", "job")):
+            candidate = match.group(1).strip()
+            if "worked as" not in candidate.casefold():
+                found.append(candidate.title())
     return _unique(found)
 
 
@@ -94,14 +137,34 @@ RESPONSIBILITY_PATTERNS = (
 DIRECT_SKILL_PATTERNS = (
     ("Inventory Management", r"\b(?:manage|managed|managing)\s+(?:the\s+)?stock\b|\bstock\s+management\b|\b(?:handle|handling)\s+inventory\b|\binventory\s+(?:handling|management)\b|\bstock\s+manage\b"),
     ("Customer Handling", r"\b(?:handle|handled|handling|talk(?:ing)?\s+with)\s+(?:the\s+)?customers?\b|\bcustomers?[^\s]*\s+handle\b"),
-    ("Python", r"\b(?:used\s+)?python(?:\s+programming)?\b|\bcoding\s+in\s+python\b"),
-    ("SQL", r"\b(?:used\s+)?sql\b"),
     ("Data Analysis", r"\bdata\s+analysis\b|\bdata\s+analy[sz](?:e|ed|ing)\b"),
     ("Machine Learning", r"\bmachine\s+learning\b"),
     ("Cloud Computing", r"\bcloud\s+(?:computing|infrastructure|deployment)\b"),
 )
 IMPLICIT_SKILL_PATTERNS = (
     ("Inventory Management", r"\bkeep\s+track\s+of\s+materials\s+coming\s+in\s+and\s+going\s+out\b"),
+    ("Web Development", r"\bweb\s+application\s+develop(?:ed)?\b|\bwebsite\b"),
+    ("Database Management", r"\bdatabase-[\w\u0b80-\u0bff]*\s+manage\b|\bdatabase\s+(?:manage|managed|management|handling)\b|\bmanage(?:d)?\s+(?:a\s+)?database\b"),
+)
+TECH_SKILL_PATTERNS = (
+    ("Python", r"\bpython\b"),
+    ("SQL", r"\bsql\b|\bstructured\s+query\s+language\b"),
+    ("React", r"\breact(?:\.js|js)?\b"),
+)
+CLAIM_CUES = (
+    "use", "used", "using", "know", "learned", "built", "build", "created", "create", "develop", "worked", "working",
+    "பயன்படுத்", "உருவாக்க", "வேலை", "பண்ண", "தெரியும்",
+    "इस्तेमाल", "उपयोग", "बनाया", "काम", "जानता", "जानती",
+    "ఉపయోగ", "రూపొంద", "పని", "తెలుసు",
+    "ഉപയോഗ", "ഉണ്ടാക്ക", "ജോലി", "അറിയാം",
+    "ಬಳ", "ಮಾಡ", "ಕೆಲಸ", "ಗೊತ್ತು",
+    "ব্যবহার", "তৈরি", "কাজ", "জানি",
+    "वापर", "तयार", "काम", "माहित",
+)
+NEGATION_CUES = (
+    "don't know", "do not know", "dont know", "never used", "not used", "no experience",
+    "தெரியாது", "பயன்படுத்தவில்லை", "இல்லை",
+    "नहीं", "नही", "తెలియదు", "ಇಲ್ಲ", "അറിയില്ല", "জানি না", "नाही",
 )
 
 
@@ -113,8 +176,31 @@ def _responsibilities(text: str) -> list[str]:
     )
 
 
+def _has_claim_cue(sentence: str) -> bool:
+    lowered = sentence.casefold()
+    return any(cue in lowered for cue in CLAIM_CUES)
+
+
+def _is_negated(sentence: str) -> bool:
+    lowered = sentence.casefold()
+    return any(cue in lowered for cue in NEGATION_CUES)
+
+
 def _skills(text: str, sentences: list[str]) -> list[Skill]:
     found: list[Skill] = []
+    for sentence in sentences:
+        if not _has_claim_cue(sentence) or _is_negated(sentence):
+            continue
+        for canonical, pattern in TECH_SKILL_PATTERNS:
+            for match in re.finditer(pattern, sentence, re.I):
+                raw = match.group(0)
+                found.append(Skill(
+                    canonical_name=canonical,
+                    raw_phrase=raw,
+                    evidence=sentence,
+                    confidence=0.95,
+                    inference_type="explicit",
+                ))
     for canonical, pattern in DIRECT_SKILL_PATTERNS:
         for match in re.finditer(pattern, text, re.I):
             raw = match.group(0)
@@ -127,11 +213,46 @@ def _skills(text: str, sentences: list[str]) -> list[Skill]:
     for canonical, pattern in IMPLICIT_SKILL_PATTERNS:
         for match in re.finditer(pattern, text, re.I):
             raw = match.group(0)
+            evidence = _evidence(raw, sentences)
+            if canonical == "Web Development" and "website" in raw.casefold() and not any(
+                cue in evidence.casefold() for cue in ("build", "built", "create", "created", "develop", "உருவாக்க", "बनाया", "తయారు", "ತಯಾರ", "তৈরি")
+            ):
+                continue
             found.append(Skill(
-                canonical_name=canonical, raw_phrase=raw, evidence=_evidence(raw, sentences),
-                confidence=0.76, inference_type="implicit",
+                canonical_name=canonical, raw_phrase=raw, evidence=evidence,
+                confidence=0.82 if canonical in {"Web Development", "Database Management"} else 0.76,
+                inference_type="implicit",
             ))
     return normalize_skills(found)
+
+
+def _source_contains(source: str, value: str) -> bool:
+    return value.strip().casefold() in source
+
+
+def _sanitize_profile(profile: ProfileResponse, transcript: str) -> ProfileResponse:
+    """Keep only AI claims that can be grounded directly in the transcript."""
+    fallback = deterministic_extract(transcript)
+    source = transcript.casefold()
+    verified_skills = [
+        skill
+        for skill in profile.skills
+        if _source_contains(source, skill.evidence)
+        and (_source_contains(source, skill.raw_phrase) or _source_contains(skill.evidence.casefold(), skill.raw_phrase))
+        and not _is_negated(skill.evidence)
+    ]
+    grounded_roles = [role for role in profile.roles if _source_contains(source, role)]
+    grounded_responsibilities = [
+        responsibility for responsibility in profile.responsibilities if _source_contains(source, responsibility)
+    ]
+    domains = _unique(fallback.domain + [domain for domain in profile.domain if _source_contains(source, domain)])
+    return ProfileResponse(
+        domain=domains,
+        experience_years=fallback.experience_years,
+        roles=_unique(fallback.roles + grounded_roles),
+        responsibilities=_unique(fallback.responsibilities + grounded_responsibilities),
+        skills=normalize_skills(verified_skills + fallback.skills),
+    )
 
 
 def deterministic_extract(transcript: str) -> ProfileResponse:
@@ -172,9 +293,7 @@ Transcript:
     except Exception as exc:
         raise ExtractionError("Gemini extraction failed.") from exc
 
-    source = transcript.casefold()
-    verified = [s for s in profile.skills if s.raw_phrase.casefold() in source and s.evidence.casefold() in source]
-    return profile.model_copy(update={"skills": normalize_skills(verified)})
+    return _sanitize_profile(profile, transcript)
 
 
 def extract_profile(transcript: str) -> ProfileResponse:

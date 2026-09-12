@@ -556,3 +556,94 @@ def test_no_fake_skills_hallucinated():
     assert "Inventory Management" not in extracted_names
     assert "Customer Handling" not in extracted_names
 
+
+
+def test_expanded_opportunities_dataset_size_and_integrity():
+    from backend.services.matching_service import load_opportunity_dataset
+    load_opportunity_dataset.cache_clear()
+    opps, mappings = load_opportunity_dataset()
+    assert len(opps) >= 100, f"Expected 100+ opportunities, got {len(opps)}"
+    ids = [o["id"] for o in opps]
+    assert len(ids) == len(set(ids)), "Opportunity IDs must be unique"
+    for opp in opps:
+        assert opp["title"], "Opportunity must have title"
+        assert opp["company"], "Opportunity must have company"
+        assert opp["district"], "Opportunity must have district"
+        assert opp["location"], "Opportunity must have location"
+        assert opp["required_skills"], f"Opportunity {opp['id']} must have required skills"
+
+
+def test_matching_scenarios_a_through_f():
+    from backend.services.matching_service import match_skills_to_opportunities
+
+    # Test A: Python, Java, SQL
+    res_a = match_skills_to_opportunities(["Python", "Java", "SQL"])
+    assert len(res_a) >= 100
+    top_a_titles = " ".join(r["title"] for r in res_a[:5])
+    assert any(k in top_a_titles for k in ["Python", "Java", "Software", "Backend", "Database"])
+    assert res_a[0]["match_score"] >= 0.5
+
+    # Test B: HTML, CSS, JavaScript, React
+    res_b = match_skills_to_opportunities(["HTML", "CSS", "JavaScript", "React"])
+    assert res_b[0]["match_score"] >= 0.75
+    top_b_titles = " ".join(r["title"] for r in res_b[:5])
+    assert any(k in top_b_titles for k in ["Frontend", "React", "Web", "Full Stack"])
+
+    # Test C: Python, Pandas, NumPy, Machine Learning, Scikit-learn
+    res_c = match_skills_to_opportunities(["Python", "Pandas", "NumPy", "Machine Learning", "Scikit-learn"])
+    assert res_c[0]["match_score"] >= 0.75
+    top_c_titles = " ".join(r["title"] for r in res_c[:5])
+    assert any(k in top_c_titles for k in ["Machine Learning", "ML", "Data Scientist", "AI"])
+
+    # Test D: AWS, Linux, Docker, Git
+    res_d = match_skills_to_opportunities(["AWS", "Linux", "Docker", "Git"])
+    assert res_d[0]["match_score"] >= 0.65
+    top_d_titles = " ".join(r["title"] for r in res_d[:5])
+    assert any(k in top_d_titles for k in ["Cloud", "DevOps", "Linux", "Reliability"])
+
+    # Test E: SQL, Microsoft Excel, Power BI, Data Analysis
+    res_e = match_skills_to_opportunities(["SQL", "Microsoft Excel", "Power BI", "Data Analysis"])
+    assert res_e[0]["match_score"] >= 0.75
+    top_e_titles = " ".join(r["title"] for r in res_e[:5])
+    assert any(k in top_e_titles for k in ["Data Analyst", "BI", "Business Analyst", "Reporting"])
+
+    # Test F: Java, Kotlin, Android
+    res_f = match_skills_to_opportunities(["Java", "Kotlin", "Android"])
+    assert res_f[0]["match_score"] >= 0.65
+    top_f_titles = " ".join(r["title"] for r in res_f[:5])
+    assert any(k in top_f_titles for k in ["Android", "Kotlin", "Mobile"])
+
+
+def test_end_to_end_speech_to_matching_scenarios():
+    from backend.services.matching_service import match_skills_to_opportunities
+
+    # 1. User speaks Python, Java, SQL, React
+    transcript_1 = "I have worked with Python and Java. I know SQL and React."
+    profile_1 = extract_profile(transcript_1)
+    skills_1 = [s.canonical_name for s in profile_1.skills]
+    assert {"Python", "Java", "SQL", "React"} <= set(skills_1)
+    opps_1 = match_skills_to_opportunities(skills_1)
+    assert len(opps_1) >= 100
+    assert opps_1[0]["match_score"] > 0.5
+    # Matched skills must only come from speech profile
+    for opp in opps_1[:5]:
+        for ms in opp["matched_skills"]:
+            assert ms in skills_1
+
+    # 2. User speaks HTML, CSS, JavaScript, React
+    transcript_2 = "I developed websites using HTML CSS JavaScript and React."
+    profile_2 = extract_profile(transcript_2)
+    skills_2 = [s.canonical_name for s in profile_2.skills]
+    assert {"HTML", "CSS", "JavaScript", "React"} <= set(skills_2)
+    opps_2 = match_skills_to_opportunities(skills_2)
+    top_titles_2 = [o["title"] for o in opps_2[:5]]
+    assert any("React" in t or "Web" in t or "Frontend" in t for t in top_titles_2)
+
+    # 3. User speaks Python with Pandas and NumPy for machine learning
+    transcript_3 = "I use Python with Pandas and NumPy for machine learning."
+    profile_3 = extract_profile(transcript_3)
+    skills_3 = [s.canonical_name for s in profile_3.skills]
+    assert {"Python", "Pandas", "NumPy", "Machine Learning"} <= set(skills_3)
+    opps_3 = match_skills_to_opportunities(skills_3)
+    top_titles_3 = [o["title"] for o in opps_3[:5]]
+    assert any("Machine Learning" in t or "Data" in t or "AI" in t for t in top_titles_3)

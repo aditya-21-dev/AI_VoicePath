@@ -287,6 +287,167 @@ SKILL_RULES: tuple[SkillRule, ...] = (
         r"\bteamwork\b",
         r"\bteam\s+collaboration\b",
     )),
+    SkillRule("Customer Service", (
+        r"\bcustomer\s+service\b",
+        r"\bcustomer\s+support\b",
+    )),
+    SkillRule("Digital Marketing", (
+        r"\bdigital\s+marketing\b",
+        r"\bseo\b",
+        r"\bsem\b",
+    )),
+    SkillRule("Microsoft Office", (
+        r"\bmicrosoft\s+office\b",
+        r"\bms\s+office\b",
+    )),
+    SkillRule("Data Entry", (
+        r"\bdata\s+entry\b",
+    )),
+
+    # Expanded Programming
+    SkillRule("C#", (
+        r"\bc#\b",
+        r"\bc\s+sharp\b",
+    )),
+    SkillRule("Go", (
+        r"\bgolang\b",
+        r"\bgo\s+programming\b",
+        r"\bcoding\s+in\s+go\b",
+    )),
+    SkillRule("Rust", (
+        r"\brust\b",
+        r"\brust\s+programming\b",
+    )),
+    SkillRule("PHP", (
+        r"\bphp\b",
+    )),
+
+    # Expanded Web & Frameworks
+    SkillRule("Angular", (
+        r"\bangular(?:\.js|js)?\b",
+    )),
+    SkillRule("Vue.js", (
+        r"\bvue(?:\.js|js)?\b",
+    )),
+    SkillRule("Express.js", (
+        r"\bexpress(?:\.js|js)?\b",
+    )),
+
+    # Database & Design
+    SkillRule("Firebase", (
+        r"\bfirebase\b",
+    )),
+    SkillRule("Database Design", (
+        r"\bdatabase\s+design\b",
+        r"\bschema\s+design\b",
+    )),
+
+    # Analytics & AI
+    SkillRule("Statistics", (
+        r"\bstatistics\b",
+        r"\bstatistical\s+analysis\b",
+    )),
+    SkillRule("Artificial Intelligence", (
+        r"\bartificial\s+intelligence\b",
+        r"\bai\b",
+    )),
+
+    # Software Engineering & DevOps
+    SkillRule("Software Testing", (
+        r"\bsoftware\s+testing\b",
+        r"\bqa\s+testing\b",
+        r"\bunit\s+testing\b",
+    )),
+    SkillRule("Debugging", (
+        r"\bdebugging\b",
+        r"\bcode\s+debugging\b",
+    )),
+    SkillRule("GitHub", (
+        r"\bgithub\b",
+    )),
+
+    # Cybersecurity & Networking
+    SkillRule("Security Fundamentals", (
+        r"\bsecurity\s+fundamentals\b",
+        r"\binformation\s+security\b",
+    )),
+    SkillRule("Vulnerability Assessment", (
+        r"\bvulnerability\s+assessment\b",
+        r"\bvulnerability\s+scanning\b",
+    )),
+    SkillRule("Cryptography", (
+        r"\bcryptography\b",
+        r"\bencryption\b",
+    )),
+    SkillRule("TCP/IP", (
+        r"\btcp[\s/-]?ip\b",
+    )),
+    SkillRule("Cisco", (
+        r"\bcisco\b",
+    )),
+    SkillRule("Network Administration", (
+        r"\bnetwork\s+administration\b",
+        r"\bnetwork\s+admin\b",
+    )),
+
+    # UI/UX Prototyping
+    SkillRule("Prototyping", (
+        r"\bprototyping\b",
+        r"\binteractive\s+prototypes?\b",
+    )),
+    SkillRule("User Research", (
+        r"\buser\s+research\b",
+        r"\busability\s+testing\b",
+    )),
+    SkillRule("Wireframing", (
+        r"\bwireframing\b",
+        r"\bwireframes?\b",
+    )),
+
+    # Vocational & Operations
+    SkillRule("Retail Operations", (
+        r"\bretail\s+operations\b",
+    )),
+    SkillRule("Manufacturing", (
+        r"\bmanufacturing\b",
+        r"\bproduction\s+plant\b",
+    )),
+    SkillRule("Electrical", (
+        r"\belectrical\b",
+        r"\belectrical\s+maintenance\b",
+    )),
+    SkillRule("Mechanical", (
+        r"\bmechanical\b",
+        r"\bmechanical\s+maintenance\b",
+    )),
+    SkillRule("Machine Operation", (
+        r"\bmachine\s+operation\b",
+        r"\boperate\s+machines?\b",
+    )),
+    SkillRule("Logistics", (
+        r"\blogistics\b",
+        r"\bsupply\s+chain\b",
+    )),
+    SkillRule("Warehouse Management", (
+        r"\bwarehouse\s+management\b",
+        r"\bwarehouse\s+operations?\b",
+    )),
+    SkillRule("Accounting", (
+        r"\baccounting\b",
+        r"\bbookkeeping\b",
+    )),
+    SkillRule("Tally", (
+        r"\btally\b",
+        r"\btally\s+erp\b",
+    )),
+    SkillRule("GST", (
+        r"\bgst\b",
+        r"\bgst\s+filing\b",
+    )),
+    SkillRule("AutoCAD", (
+        r"\bautocad\b",
+        r"\bcad\b",
+    )),
 )
 
 

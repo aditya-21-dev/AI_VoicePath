@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import OpportunityCard from './OpportunityCard.jsx'
 import MatchBreakdown from './MatchBreakdown.jsx'
 import SkillGap from './SkillGap.jsx'
@@ -7,9 +7,9 @@ import WhatIfSimulator from './WhatIfSimulator.jsx'
 import OpportunityMap from './OpportunityMap.jsx'
 import SkillAnalytics from './SkillAnalytics.jsx'
 import Toast from './Toast.jsx'
+import { matchOpportunities } from '../services/api.js'
 
 import {
-  TEXTILE_WORKER_OPPORTUNITIES,
   TEXTILE_WORKER_SKILL_GAP,
   TEXTILE_WORKER_LEARNING_PATH,
   TEXTILE_WORKER_SKILLS,
@@ -18,31 +18,30 @@ import {
 
 /**
  * OpportunitiesView — Master career matching & upskilling intelligence hub.
- * Houses:
- *   - Verified Opportunities with District data & VoicePath Match Score
- *   - MatchBreakdown explainability modal
- *   - Skill Gap diagnostics
- *   - Learning Path timeline
- *   - What-If career simulator
- *   - Toast notifications & robust empty states
+ * Dynamically connects user speech-extracted skills to verified backend opportunities.
  *
  * @param {{
- *   initialTab?: 'matches'|'gap'|'path'|'whatif',
+ *   analysisResult?: object,
+ *   initialTab?: 'matches'|'analytics'|'gap'|'path'|'whatif',
  *   onBackToProfile?: () => void,
  *   onStartOver?: () => void
  * }} props
  */
 export default function OpportunitiesView({
+  analysisResult,
   initialTab = 'matches',
   onBackToProfile,
   onStartOver,
 }) {
-  const [activeTab, setActiveTab]         = useState(initialTab)
-  const [selectedDistrict, setSelectedDistrict] = useState('all')
+  const [activeTab, setActiveTab]                 = useState(initialTab)
+  const [selectedDistrict, setSelectedDistrict]   = useState('all')
   const [selectedOppForExplain, setSelectedOppForExplain] = useState(null)
-  const [selectedOppId, setSelectedOppId] = useState(null)
-  const [toastMessage, setToastMessage]   = useState('')
-  const [toastType, setToastType]         = useState('success')
+  const [selectedOppId, setSelectedOppId]         = useState(null)
+  const [toastMessage, setToastMessage]           = useState('')
+  const [toastType, setToastType]                 = useState('success')
+  const [opportunities, setOpportunities]         = useState([])
+  const [isLoading, setIsLoading]                 = useState(true)
+  const [loadError, setLoadError]                 = useState('')
 
   function triggerToast(msg, type = 'success') {
     setToastMessage(msg)
@@ -52,13 +51,66 @@ export default function OpportunitiesView({
     }, 3500)
   }
 
-  // Filter opportunities by district
+  // Extract real canonical skills from the spoken analysis result
+  const userSkills = useMemo(() => {
+    const rawSkills = analysisResult?.profile?.skills ?? []
+    return rawSkills
+      .map((s) => (typeof s === 'string' ? s : s?.canonical_name))
+      .filter(Boolean)
+  }, [analysisResult])
+
+  const skillsSummary = useMemo(() => {
+    return userSkills.length > 0 ? userSkills.join(', ') : 'your spoken competencies'
+  }, [userSkills])
+
+  // Fetch opportunities from the real matching backend
+  useEffect(() => {
+    let cancelled = false
+
+    const expYears = Number(analysisResult?.profile?.experience_years) || 1
+    const domain = Array.isArray(analysisResult?.profile?.domain)
+      ? analysisResult.profile.domain[0]
+      : analysisResult?.profile?.domain
+
+    matchOpportunities({
+      skills: userSkills,
+      experience_years: expYears,
+      district: selectedDistrict === 'all' ? null : selectedDistrict,
+      domain: domain === 'all' ? null : domain,
+    })
+      .then((data) => {
+        if (!cancelled) {
+          setOpportunities(Array.isArray(data) ? data : [])
+          setLoadError('')
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          console.error('Failed to load matched opportunities:', err)
+          setLoadError(err.message || 'Could not load matching opportunities.')
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [userSkills, selectedDistrict, analysisResult])
+
+  // Opportunities to display
   const filteredOpps = useMemo(() => {
-    if (selectedDistrict === 'all') return TEXTILE_WORKER_OPPORTUNITIES.slice(0, 3) // Top 3 verified roles
-    return TEXTILE_WORKER_OPPORTUNITIES.filter((o) =>
-      (o.district || '').toLowerCase().includes(selectedDistrict.toLowerCase())
-    )
-  }, [selectedDistrict])
+    if (selectedDistrict === 'all') {
+      return opportunities.slice(0, 10)
+    }
+    return opportunities.filter((o) =>
+      (o.district || '').toLowerCase().includes(selectedDistrict.toLowerCase()) ||
+      (o.location || '').toLowerCase().includes(selectedDistrict.toLowerCase())
+    ).slice(0, 10)
+  }, [opportunities, selectedDistrict])
 
   function handleExplain(opp) {
     setSelectedOppForExplain(opp)
@@ -66,7 +118,7 @@ export default function OpportunitiesView({
 
   function handleViewGap() {
     setActiveTab('gap')
-    triggerToast('Loaded Skill Gap diagnostic for target supervisor benchmark.', 'info')
+    triggerToast('Loaded Skill Gap diagnostic for target benchmark.', 'info')
   }
 
   function handleStartLearning() {
@@ -96,7 +148,7 @@ export default function OpportunitiesView({
             Verified Opportunities &amp; Pathways
           </h1>
           <p className="vp-page-title__sub">
-            Matched specifically against your spoken sewing, stock inventory, and customer care evidence.
+            Matched specifically against your spoken competencies: <strong style={{ color: 'var(--text-primary)' }}>{skillsSummary}</strong>.
           </p>
         </div>
 
@@ -111,7 +163,7 @@ export default function OpportunitiesView({
           >
             <span>🎯 Verified Roles &amp; Map</span>
             <span className="vp-badge vp-badge--cyan" style={{ fontSize: '0.65rem', marginLeft: 6 }}>
-              Top 3
+              {filteredOpps.length} Matches
             </span>
           </button>
 
@@ -176,11 +228,11 @@ export default function OpportunitiesView({
                 className={`vp-district-chip ${selectedDistrict === 'all' ? 'active' : ''}`}
                 onClick={() => {
                   setSelectedDistrict('all')
-                  triggerToast('Showing Top 3 verified roles across all districts')
+                  triggerToast('Showing verified roles across all districts')
                 }}
                 type="button"
               >
-                All Clusters (Top 3)
+                All Clusters
               </button>
               <button
                 className={`vp-district-chip ${selectedDistrict === 'chennai' ? 'active' : ''}`}
@@ -196,19 +248,39 @@ export default function OpportunitiesView({
                 className={`vp-district-chip ${selectedDistrict === 'tirupur' ? 'active' : ''}`}
                 onClick={() => {
                   setSelectedDistrict('tirupur')
-                  triggerToast('Filtered to Tirupur / Coimbatore apparel cluster')
+                  triggerToast('Filtered to Tirupur / Coimbatore cluster')
                 }}
                 type="button"
               >
                 Tirupur / Coimbatore
               </button>
+              <button
+                className={`vp-district-chip ${selectedDistrict === 'bangalore' ? 'active' : ''}`}
+                onClick={() => {
+                  setSelectedDistrict('bangalore')
+                  triggerToast('Filtered to Bangalore Tech Hub')
+                }}
+                type="button"
+              >
+                Bangalore
+              </button>
             </div>
           </div>
+
+          {loadError && (
+            <div className="vp-alert vp-alert--error" style={{ marginBottom: 'var(--space-4)' }}>
+              <span>{loadError}</span>
+            </div>
+          )}
 
           {/* Desktop: Split Cards | Map; Mobile: Cards ↓ Map */}
           <div className="vp-opps-and-map-layout">
             <div className="vp-opps-column">
-              {filteredOpps.length > 0 ? (
+              {isLoading ? (
+                <div className="glass-card" style={{ padding: 'var(--space-6)', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                  <p>Analyzing speech evidence and matching verified opportunities...</p>
+                </div>
+              ) : filteredOpps.length > 0 ? (
                 <div className="vp-opps-grid" role="feed" aria-label="Matching role listings">
                   {filteredOpps.map((opp) => (
                     <div
@@ -264,14 +336,14 @@ export default function OpportunitiesView({
       {activeTab === 'analytics' && (
         <section className="vp-analytics-section" aria-label="Competency Analytics">
           <SkillAnalytics
-            skills={TEXTILE_WORKER_SKILLS}
+            skills={userSkills.length > 0 ? userSkills.map((s) => ({ canonical_name: s, proficiency: 'Demonstrated' })) : TEXTILE_WORKER_SKILLS}
             breakdown={filteredOpps[0]?.breakdown}
             gapData={TEXTILE_WORKER_SKILL_GAP}
           />
         </section>
       )}
 
-      {/* ─── TAB 2: Skill Gap Diagnostics ───────────────────── */}
+      {/* ─── TAB 3: Skill Gap Diagnostics ───────────────────── */}
       {activeTab === 'gap' && (
         <SkillGap
           gapData={TEXTILE_WORKER_SKILL_GAP}
@@ -279,7 +351,7 @@ export default function OpportunitiesView({
         />
       )}
 
-      {/* ─── TAB 3: Learning Pathway ────────────────────────── */}
+      {/* ─── TAB 4: Learning Pathway ────────────────────────── */}
       {activeTab === 'path' && (
         <LearningPath
           pathData={TEXTILE_WORKER_LEARNING_PATH}
@@ -287,7 +359,7 @@ export default function OpportunitiesView({
         />
       )}
 
-      {/* ─── TAB 4: What-If Simulation Engine ───────────────── */}
+      {/* ─── TAB 5: What-If Simulation Engine ───────────────── */}
       {activeTab === 'whatif' && (
         <WhatIfSimulator
           baseReadiness={74}

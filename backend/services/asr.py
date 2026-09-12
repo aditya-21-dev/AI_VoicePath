@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 import math
 import os
+
+logger = logging.getLogger('voicepath.asr')
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -47,6 +50,7 @@ def get_whisper_model() -> Any:
     try:
         from faster_whisper import WhisperModel
     except ImportError as exc:
+        logger.exception("Faster-Whisper import failed: %s", exc)
         raise ASRUnavailableError("Local speech recognition is not installed.") from exc
     try:
         return WhisperModel(
@@ -55,6 +59,7 @@ def get_whisper_model() -> Any:
             compute_type="int8",
         )
     except Exception as exc:
+        logger.exception("Faster-Whisper model loading failed: %s", exc)
         raise ASRUnavailableError("Local speech recognition model is unavailable.") from exc
 
 
@@ -146,10 +151,12 @@ def transcribe_audio(audio_path: str | Path, language: str | None = None) -> Tra
         raise
     except Exception as exc:
         if _invalid_input_error(exc):
+            logger.warning("Invalid audio input detected by decoder: %s", exc)
             raise InvalidAudioError("The uploaded file is not valid audio.") from exc
         demo = _configured_demo(fallback_language)
         if demo:
             return demo
+        logger.exception("Faster-Whisper transcription failed: %s", exc)
         raise ASRUnavailableError("Speech recognition could not complete.") from exc
 
     transcript = " ".join(str(getattr(s, "text", "")).strip() for s in segments).strip()

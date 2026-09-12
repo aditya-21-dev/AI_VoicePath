@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 import tempfile
 from pathlib import Path
+
+logger = logging.getLogger('voicepath.api')
 
 from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
@@ -86,13 +89,66 @@ async def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+def _determine_audio_suffix(audio: UploadFile, sample_bytes: bytes = b"") -> str:
+    filename = (audio.filename or "").strip()
+    if filename:
+        ext = Path(filename).suffix.lower()
+        if ext in {".m4a", ".webm", ".wav", ".mp3", ".ogg", ".flac", ".aac", ".mp4", ".opus"}:
+            return ext
+        if ext and ext != ".bin":
+            return ext
+
+    content_type = (audio.content_type or "").lower().split(";")[0].strip()
+    content_map = {
+        "audio/x-m4a": ".m4a",
+        "audio/m4a": ".m4a",
+        "audio/mp4": ".m4a",
+        "video/mp4": ".mp4",
+        "audio/webm": ".webm",
+        "video/webm": ".webm",
+        "audio/wav": ".wav",
+        "audio/x-wav": ".wav",
+        "audio/wave": ".wav",
+        "audio/mpeg": ".mp3",
+        "audio/mp3": ".mp3",
+        "audio/ogg": ".ogg",
+        "audio/flac": ".flac",
+        "audio/aac": ".aac",
+    }
+    if content_type in content_map:
+        return content_map[content_type]
+
+    if sample_bytes:
+        if sample_bytes.startswith(b"RIFF") and b"WAVE" in sample_bytes[:16]:
+            return ".wav"
+        if b"ftyp" in sample_bytes[:16]:
+            return ".m4a"
+        if sample_bytes.startswith(b"\x1aE\xdf\xa3"):
+            return ".webm"
+        if sample_bytes.startswith(b"ID3") or sample_bytes[:2] == b"\xff\xfb":
+            return ".mp3"
+        if sample_bytes.startswith(b"OggS"):
+            return ".ogg"
+        if sample_bytes.startswith(b"fLaC"):
+            return ".flac"
+
+    return ".m4a"
+
+
 async def _save_audio(audio: UploadFile) -> Path:
-    temporary = tempfile.NamedTemporaryFile(
-        prefix="voicepath-", suffix=Path(audio.filename or "audio.bin").suffix or ".bin", delete=False
-    )
+    # Read initial chunk to inspect header and verify not empty
+    first_chunk = await audio.read(1024 * 1024)
+    if not first_chunk:
+        raise APIError("INVALID_AUDIO", "Uploaded audio is empty.", 400)
+    if len(first_chunk) > _MAX_AUDIO_BYTES:
+        raise APIError("INVALID_AUDIO", "Uploaded audio exceeds the 25 MB limit.", 400)
+
+    suffix = _determine_audio_suffix(audio, first_chunk)
+    temporary = tempfile.NamedTemporaryFile(prefix="voicepath-", suffix=suffix, delete=False)
     path = Path(temporary.name)
-    total = 0
+    total = len(first_chunk)
     try:
+        temporary.write(first_chunk)
         while chunk := await audio.read(1024 * 1024):
             total += len(chunk)
             if total > _MAX_AUDIO_BYTES:
@@ -102,10 +158,9 @@ async def _save_audio(audio: UploadFile) -> Path:
         temporary.close()
         path.unlink(missing_ok=True)
         raise
-    temporary.close()
-    if not total:
-        path.unlink(missing_ok=True)
-        raise APIError("INVALID_AUDIO", "Uploaded audio is empty.", 400)
+    finally:
+        temporary.close()
+
     return path
 
 
@@ -128,12 +183,19 @@ async def transcribe(
             translation=translation,
         )
     except InvalidAudioError as exc:
+        logger.warning("Invalid audio upload: %s", exc)
         raise APIError("INVALID_AUDIO", "The uploaded file is not valid audio.", 400) from exc
     except ASREmptyTranscriptError as exc:
+        logger.warning("Empty transcript detected: %s", exc)
         raise APIError("EMPTY_TRANSCRIPT", "No speech was detected in the uploaded audio.", 422) from exc
     except UnsupportedLanguageError as exc:
+        logger.warning("Unsupported language requested: %s", exc)
         raise APIError("UNSUPPORTED_LANGUAGE", str(exc) or "Unsupported transcription language.", 400) from exc
     except ASRUnavailableError as exc:
+        logger.exception("ASR transcription failed: %s", exc)
+        raise APIError("ASR_UNAVAILABLE", "Speech recognition service is temporarily unavailable.", 503) from exc
+    except Exception as exc:
+        logger.exception("Unexpected error during ASR transcription: %s", exc)
         raise APIError("ASR_UNAVAILABLE", "Speech recognition service is temporarily unavailable.", 503) from exc
     finally:
         path.unlink(missing_ok=True)

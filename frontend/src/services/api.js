@@ -378,6 +378,52 @@ export async function getOpportunities(params = {}) {
   return res.json();
 }
 
+
+/**
+ * Matches extracted user skills against verified career opportunities via backend API.
+ * Real Endpoint: POST /api/v1/match-opportunities
+ *
+ * @param {{
+ *   skills?: string[],
+ *   experience_years?: number,
+ *   district?: string,
+ *   domain?: string
+ * }} [params={}]
+ * @returns {Promise<Array<object>>}
+ */
+export async function matchOpportunities(params = {}) {
+  const {
+    skills = [],
+    experience_years = 1,
+    district = null,
+    domain = null,
+  } = params;
+
+  try {
+    const response = await requestWithTimeout(`${API_BASE_URL}/api/v1/match-opportunities`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        skills,
+        experience_years,
+        district: district && district !== 'all' ? district : null,
+        domain: domain && domain !== 'all' ? domain : null,
+      }),
+    });
+
+    if (!response.ok) {
+      throw createError(
+        await readErrorMessage(response, 'Opportunity matching failed.'),
+        response.status,
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw normalizeNetworkError(error, 'Opportunity matching service unavailable.');
+  }
+}
+
 // ─── 4. Skill Gap Analysis Endpoint ───────────────────────────────────────────
 
 /**
@@ -549,6 +595,7 @@ export async function getPersona(personaId = 'textile') {
 }
 
 export default {
+  matchOpportunities,
   analyzeVoice,
   getProfile,
   updateProfile,

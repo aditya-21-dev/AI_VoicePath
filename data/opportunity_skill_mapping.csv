@@ -239,3 +239,243 @@ opp_065,Java,required
 opp_065,React,required
 opp_065,SQL,required
 opp_065,Git,preferred
+opp_066,Go,required
+opp_066,Docker,required
+opp_066,REST API,required
+opp_066,Git,preferred
+opp_067,Rust,required
+opp_067,C++,required
+opp_067,Algorithms,required
+opp_067,Linux,preferred
+opp_068,C#,required
+opp_068,SQL,required
+opp_068,OOP,required
+opp_068,REST API,preferred
+opp_069,PHP,required
+opp_069,MySQL,required
+opp_069,JavaScript,required
+opp_069,HTML,preferred
+opp_070,Python,required
+opp_070,Software Testing,required
+opp_070,Git,required
+opp_070,Debugging,preferred
+opp_071,Java,required
+opp_071,SQL,required
+opp_071,OOP,required
+opp_071,Data Structures,preferred
+opp_072,Python,required
+opp_072,SQL,required
+opp_072,Database Management,required
+opp_072,Git,preferred
+opp_073,Angular,required
+opp_073,TypeScript,required
+opp_073,HTML,required
+opp_073,CSS,preferred
+opp_074,Vue.js,required
+opp_074,JavaScript,required
+opp_074,HTML,required
+opp_074,CSS,preferred
+opp_075,Node.js,required
+opp_075,Express.js,required
+opp_075,REST API,required
+opp_075,SQL,preferred
+opp_076,React,required
+opp_076,JavaScript,required
+opp_076,HTML,required
+opp_076,CSS,preferred
+opp_077,React,required
+opp_077,Node.js,required
+opp_077,REST API,required
+opp_077,Full Stack Development,preferred
+opp_078,HTML,required
+opp_078,CSS,required
+opp_078,JavaScript,required
+opp_078,Web Development,preferred
+opp_079,PostgreSQL,required
+opp_079,SQL,required
+opp_079,Database Management,required
+opp_079,Database Design,preferred
+opp_080,MongoDB,required
+opp_080,Database Design,required
+opp_080,Database Management,required
+opp_080,SQL,preferred
+opp_081,Firebase,required
+opp_081,JavaScript,required
+opp_081,Database Management,required
+opp_081,REST API,preferred
+opp_082,Database Design,required
+opp_082,SQL,required
+opp_082,MySQL,required
+opp_082,Database Management,preferred
+opp_083,Power BI,required
+opp_083,SQL,required
+opp_083,Microsoft Excel,required
+opp_083,Data Analysis,preferred
+opp_084,Python,required
+opp_084,Statistics,required
+opp_084,Pandas,required
+opp_084,Data Analysis,preferred
+opp_085,Tableau,required
+opp_085,SQL,required
+opp_085,Data Visualization,required
+opp_085,Microsoft Excel,preferred
+opp_086,SQL,required
+opp_086,Microsoft Excel,required
+opp_086,Power BI,required
+opp_086,Data Analysis,preferred
+opp_087,Data Visualization,required
+opp_087,Python,required
+opp_087,Pandas,required
+opp_087,SQL,preferred
+opp_088,Python,required
+opp_088,Machine Learning,required
+opp_088,Scikit-learn,required
+opp_088,Pandas,preferred
+opp_089,Python,required
+opp_089,Deep Learning,required
+opp_089,PyTorch,required
+opp_089,NumPy,preferred
+opp_090,Python,required
+opp_090,NLP,required
+opp_090,Machine Learning,required
+opp_090,Artificial Intelligence,preferred
+opp_091,Python,required
+opp_091,Computer Vision,required
+opp_091,TensorFlow,required
+opp_091,Machine Learning,preferred
+opp_092,Python,required
+opp_092,Generative AI,required
+opp_092,Artificial Intelligence,required
+opp_092,REST API,preferred
+opp_093,Linux,required
+opp_093,Docker,required
+opp_093,Git,required
+opp_093,CI/CD,preferred
+opp_094,AWS,required
+opp_094,Linux,required
+opp_094,Cloud Computing,required
+opp_094,Docker,preferred
+opp_095,Linux,required
+opp_095,Kubernetes,required
+opp_095,Docker,required
+opp_095,Cloud Computing,preferred
+opp_096,Azure,required
+opp_096,Cloud Computing,required
+opp_096,Linux,required
+opp_096,Git,preferred
+opp_097,Git,required
+opp_097,GitHub,required
+opp_097,CI/CD,required
+opp_097,Linux,preferred
+opp_098,Python,required
+opp_098,Software Testing,required
+opp_098,Git,required
+opp_098,Debugging,preferred
+opp_099,Java,required
+opp_099,Software Testing,required
+opp_099,SQL,required
+opp_099,OOP,preferred
+opp_100,C++,required
+opp_100,Data Structures,required
+opp_100,Algorithms,required
+opp_100,OOP,preferred
+opp_101,Debugging,required
+opp_101,Software Development,required
+opp_101,Python,required
+opp_101,Git,preferred
+opp_102,Cybersecurity,required
+opp_102,Network Security,required
+opp_102,Security Fundamentals,required
+opp_102,Linux,preferred
+opp_103,Vulnerability Assessment,required
+opp_103,Cybersecurity,required
+opp_103,Ethical Hacking,required
+opp_103,Linux,preferred
+opp_104,Cryptography,required
+opp_104,Security Fundamentals,required
+opp_104,Python,required
+opp_104,Cybersecurity,preferred
+opp_105,Cisco,required
+opp_105,Computer Networks,required
+opp_105,TCP/IP,required
+opp_105,Network Administration,preferred
+opp_106,Network Administration,required
+opp_106,Computer Networks,required
+opp_106,TCP/IP,required
+opp_106,Linux,preferred
+opp_107,Kotlin,required
+opp_107,Android,required
+opp_107,Java,required
+opp_107,Mobile App Development,preferred
+opp_108,Flutter,required
+opp_108,Dart,required
+opp_108,Mobile App Development,required
+opp_108,REST API,preferred
+opp_109,Android,required
+opp_109,Java,required
+opp_109,Kotlin,required
+opp_109,OOP,preferred
+opp_110,Figma,required
+opp_110,UI/UX Design,required
+opp_110,Prototyping,required
+opp_110,Wireframing,preferred
+opp_111,User Research,required
+opp_111,Figma,required
+opp_111,Prototyping,required
+opp_111,UI/UX Design,preferred
+opp_112,Wireframing,required
+opp_112,UI/UX Design,required
+opp_112,Figma,required
+opp_112,Prototyping,preferred
+opp_113,Digital Marketing,required
+opp_113,Communication,required
+opp_113,Problem Solving,required
+opp_113,Microsoft Excel,preferred
+opp_114,Microsoft Excel,required
+opp_114,Microsoft Office,required
+opp_114,Data Entry,required
+opp_114,Problem Solving,preferred
+opp_115,Customer Service,required
+opp_115,Communication,required
+opp_115,Problem Solving,required
+opp_115,Teamwork,preferred
+opp_116,Data Entry,required
+opp_116,Microsoft Office,required
+opp_116,Communication,required
+opp_116,Teamwork,preferred
+opp_117,Electrical,required
+opp_117,Manufacturing,required
+opp_117,Quality Control,required
+opp_117,Problem Solving,preferred
+opp_118,Mechanical,required
+opp_118,Machine Operation,required
+opp_118,Manufacturing,required
+opp_118,Quality Control,preferred
+opp_119,Warehouse Management,required
+opp_119,Logistics,required
+opp_119,Inventory Management,required
+opp_119,Teamwork,preferred
+opp_120,Tally,required
+opp_120,Accounting,required
+opp_120,GST,required
+opp_120,Microsoft Excel,preferred
+opp_121,Tally,required
+opp_121,GST,required
+opp_121,Accounting,required
+opp_121,Data Entry,preferred
+opp_122,AutoCAD,required
+opp_122,Mechanical,required
+opp_122,Manufacturing,required
+opp_122,Quality Control,preferred
+opp_123,Retail Operations,required
+opp_123,Inventory Management,required
+opp_123,Customer Service,required
+opp_123,Communication,preferred
+opp_124,Machine Operation,required
+opp_124,Manufacturing,required
+opp_124,Quality Control,required
+opp_124,Teamwork,preferred
+opp_125,Quality Control,required
+opp_125,Manufacturing,required
+opp_125,Problem Solving,required
+opp_125,Teamwork,preferred

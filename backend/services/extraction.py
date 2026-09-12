@@ -79,10 +79,29 @@ def _domains(text: str) -> list[str]:
     lowered = text.casefold()
     rules = (
         ("Retail", ("shop", "store", "retail", "supermarket")),
-        ("Software Development", ("software", "developer", "programming", "python", "coding", "react", "website", "web application")),
-        ("Data Analytics", ("data analysis", "data analytics", "analyse data", "analyze data")),
-        ("Machine Learning", ("machine learning",)),
-        ("Cloud Computing", ("cloud infrastructure", "cloud computing", "cloud deployment")),
+        (
+            "Software Development",
+            (
+                "software", "developer", "programming", "python", "java", "javascript",
+                "typescript", "react", "html", "css", "node", "coding", "website",
+                "web application", "backend", "frontend", "full stack", "fullstack",
+            ),
+        ),
+        (
+            "Data Analytics",
+            (
+                "data analysis", "data analytics", "analyse data", "analyze data",
+                "pandas", "numpy", "power bi", "tableau", "excel",
+            ),
+        ),
+        ("Machine Learning", ("machine learning", "deep learning", "ai models", "tensorflow", "pytorch")),
+        (
+            "Cloud Computing",
+            (
+                "cloud infrastructure", "cloud computing", "cloud deployment",
+                "aws", "azure", "docker", "kubernetes", "linux",
+            ),
+        ),
     )
     return [domain for domain, markers in rules if any(marker in lowered for marker in markers)]
 
@@ -134,33 +153,78 @@ RESPONSIBILITY_PATTERNS = (
     r"\bstock\s+manage\b",
     r"\bcustomers?[^\s]*\s+handle\b",
 )
+
+TECH_SKILL_PATTERNS = (
+    ("Python", r"\bpython\b"),
+    ("Java", r"\bjava\b(?!\s*script)"),
+    ("JavaScript", r"\bjavascript\b|\bjs\b"),
+    ("TypeScript", r"\btypescript\b|\bts\b"),
+    ("C++", r"\bc\+\+\b"),
+    ("C", r"\bc\s+language\b|\bprogramming\s+in\s+c\b|\bc\s+programming\b"),
+    ("HTML", r"\bhtml(?:5)?\b"),
+    ("CSS", r"\bcss(?:3)?\b"),
+    ("React", r"\breact(?:\.js|js)?\b"),
+    ("Node.js", r"\bnode(?:\.js|js)?\b"),
+    ("SQL", r"\bsql\b|\bstructured\s+query\s+language\b"),
+    ("MySQL", r"\bmysql\b"),
+    ("PostgreSQL", r"\bpostgres(?:ql)?\b"),
+    ("MongoDB", r"\bmongo(?:db)?\b"),
+    ("Pandas", r"\bpandas\b"),
+    ("NumPy", r"\bnumpy\b"),
+    ("Git", r"\bgit\b|\bgithub\b"),
+    ("Docker", r"\bdocker\b"),
+    ("Kubernetes", r"\bkubernetes\b|\bk8s\b"),
+    ("AWS", r"\baws\b|\bamazon\s+web\s+services\b"),
+    ("Azure", r"\bazure\b"),
+    ("Linux", r"\blinux\b"),
+    ("Android", r"\bandroid(?:\s+development)?\b"),
+    ("Kotlin", r"\bkotlin\b"),
+    ("Flutter", r"\bflutter\b"),
+    ("Dart", r"\bdart\b"),
+    ("Figma", r"\bfigma\b"),
+    ("REST API", r"\brest(?:\s+api|ful\s+api)?\b|\bapi\s+development\b"),
+    ("OOP", r"\boop\b|\bobject[\s-]oriented\b"),
+    ("Data Structures", r"\bdata\s+structures?\b"),
+    ("Algorithms", r"\balgorithms?\b"),
+    ("Power BI", r"\bpower\s*bi\b"),
+    ("Tableau", r"\btableau\b"),
+    ("Microsoft Excel", r"\b(?:microsoft\s+)?excel\b"),
+)
+
 DIRECT_SKILL_PATTERNS = (
     ("Inventory Management", r"\b(?:manage|managed|managing)\s+(?:the\s+)?stock\b|\bstock\s+management\b|\b(?:handle|handling)\s+inventory\b|\binventory\s+(?:handling|management)\b|\bstock\s+manage\b"),
     ("Customer Handling", r"\b(?:handle|handled|handling|talk(?:ing)?\s+with)\s+(?:the\s+)?customers?\b|\bcustomers?[^\s]*\s+handle\b"),
-    ("Data Analysis", r"\bdata\s+analysis\b|\bdata\s+analy[sz](?:e|ed|ing)\b"),
+    ("Data Analysis", r"\bdata\s+analysis\b|\bdata\s+analy[sz](?:e|ed|ing)\b|\banalyse\s+data\b|\banalyze\s+data\b"),
     ("Machine Learning", r"\bmachine\s+learning\b"),
+    ("Deep Learning", r"\bdeep\s+learning\b"),
     ("Cloud Computing", r"\bcloud\s+(?:computing|infrastructure|deployment)\b"),
+    ("Backend Development", r"\bbackend(?:\s+development)?\b|\bback[\s-]end(?:\s+development)?\b"),
+    ("Frontend Development", r"\bfrontend(?:\s+development)?\b|\bfront[\s-]end(?:\s+development)?\b"),
+    ("Full Stack Development", r"\bfull[\s-]stack(?:\s+development)?\b"),
+    ("Cybersecurity", r"\bcyber\s*security\b|\bnetwork\s+security\b"),
+    ("UI/UX Design", r"\bui[\s/-]?ux(?:\s+design)?\b"),
+    ("Quality Control", r"\bquality\s+control\b|\bquality\s+inspection\b"),
 )
+
 IMPLICIT_SKILL_PATTERNS = (
     ("Inventory Management", r"\bkeep\s+track\s+of\s+materials\s+coming\s+in\s+and\s+going\s+out\b"),
-    ("Web Development", r"\bweb\s+application\s+develop(?:ed)?\b|\bwebsite\b"),
+    ("Web Development", r"\bweb\s+application\s+develop(?:ed)?\b|\bwebsite\b|\bweb\s+application\b"),
     ("Database Management", r"\bdatabase-[\w\u0b80-\u0bff]*\s+manage\b|\bdatabase\s+(?:manage|managed|management|handling)\b|\bmanage(?:d)?\s+(?:a\s+)?database\b"),
 )
-TECH_SKILL_PATTERNS = (
-    ("Python", r"\bpython\b"),
-    ("SQL", r"\bsql\b|\bstructured\s+query\s+language\b"),
-    ("React", r"\breact(?:\.js|js)?\b"),
-)
+
 CLAIM_CUES = (
     "use", "used", "using", "know", "learned", "built", "build", "created", "create", "develop", "worked", "working",
+    "experience", "proficient", "familiar", "knowledge", "skilled", "skill", "skills", "background", "trained", "study", "studied",
+    "hands-on", "working with", "worked with",
     "பயன்படுத்", "உருவாக்க", "வேலை", "பண்ண", "தெரியும்",
     "इस्तेमाल", "उपयोग", "बनाया", "काम", "जानता", "जानती",
     "ఉపయోగ", "రూపొంద", "పని", "తెలుసు",
-    "ഉപയോഗ", "ഉണ്ടാക്ക", "ജോലി", "അറിയാം",
+    "உபயோக", "உண்டாக்க", "ஜோலி", "அறியாம்",
     "ಬಳ", "ಮಾಡ", "ಕೆಲಸ", "ಗೊತ್ತು",
     "ব্যবহার", "তৈরি", "কাজ", "জানি",
     "वापर", "तयार", "काम", "माहित",
 )
+
 NEGATION_CUES = (
     "don't know", "do not know", "dont know", "never used", "not used", "no experience",
     "தெரியாது", "பயன்படுத்தவில்லை", "இல்லை",
@@ -201,21 +265,41 @@ def _skills(text: str, sentences: list[str]) -> list[Skill]:
                     confidence=0.95,
                     inference_type="explicit",
                 ))
+        for canonical, pattern in DIRECT_SKILL_PATTERNS:
+            for match in re.finditer(pattern, sentence, re.I):
+                raw = match.group(0)
+                normalized = normalize_skill(raw) or canonical
+                found.append(Skill(
+                    canonical_name=normalized,
+                    raw_phrase=raw,
+                    evidence=sentence,
+                    confidence=0.95 if normalized in {"Python", "SQL", "Java"} else 0.94,
+                    inference_type="explicit",
+                ))
+
+    # Also check direct skills against the whole text if not found yet (with exact sentence evidence)
     for canonical, pattern in DIRECT_SKILL_PATTERNS:
         for match in re.finditer(pattern, text, re.I):
             raw = match.group(0)
-            normalized = normalize_skill(raw) or canonical
-            found.append(Skill(
-                canonical_name=normalized, raw_phrase=raw, evidence=_evidence(raw, sentences),
-                confidence=0.95 if normalized in {"Python", "SQL"} else 0.94,
-                inference_type="explicit",
-            ))
+            ev = _evidence(raw, sentences)
+            if not _is_negated(ev):
+                normalized = normalize_skill(raw) or canonical
+                found.append(Skill(
+                    canonical_name=normalized,
+                    raw_phrase=raw,
+                    evidence=ev,
+                    confidence=0.95 if normalized in {"Python", "SQL", "Java"} else 0.94,
+                    inference_type="explicit",
+                ))
+
     for canonical, pattern in IMPLICIT_SKILL_PATTERNS:
         for match in re.finditer(pattern, text, re.I):
             raw = match.group(0)
             evidence = _evidence(raw, sentences)
+            if _is_negated(evidence):
+                continue
             if canonical == "Web Development" and "website" in raw.casefold() and not any(
-                cue in evidence.casefold() for cue in ("build", "built", "create", "created", "develop", "உருவாக்க", "बनाया", "తయారు", "ತಯಾರ", "তৈরি")
+                cue in evidence.casefold() for cue in ("build", "built", "create", "created", "develop", "உருவாக்க", "बनाया", "తయారు", "ತಯಾರ", "তৈரி")
             ):
                 continue
             found.append(Skill(

@@ -166,6 +166,7 @@ export default function App() {
         return (
           <TranscriptReview
             transcript={transcript}
+            translation={transcriptMeta?.translation}
             language={transcriptMeta?.language ?? language}
             asrConfidence={transcriptMeta?.confidence}
             onConfirm={handleConfirm}
@@ -195,6 +196,7 @@ export default function App() {
       case STAGE.OPPORTUNITIES:
         return (
           <OpportunitiesView
+            analysisResult={analysisResult}
             onBackToProfile={() => setStage(STAGE.PROFILE)}
             onStartOver={handleStartOver}
           />

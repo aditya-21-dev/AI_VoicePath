@@ -11,7 +11,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.concurrency import run_in_threadpool
 
-from backend.schemas.profile import ExtractProfileRequest, ProfileResponse, TranscriptionResponse
+from backend.schemas.profile import (
+    ExtractProfileRequest,
+    MatchOpportunitiesRequest,
+    ProfileResponse,
+    TranscriptionResponse,
+)
 from backend.services.asr import (
     ASRUnavailableError,
     EmptyTranscriptError as ASREmptyTranscriptError,
@@ -23,6 +28,8 @@ from backend.services.extraction import (
     EmptyTranscriptError as ExtractionEmptyTranscriptError,
     extract_profile,
 )
+from backend.services.matching_service import match_skills_to_opportunities
+from backend.services.translation import translate_to_english
 
 app = FastAPI(title="VoicePath API")
 app.add_middleware(
@@ -102,15 +109,23 @@ async def _save_audio(audio: UploadFile) -> Path:
     return path
 
 
-@app.post("/api/v1/transcribe", response_model=TranscriptionResponse)
+@app.post("/api/v1/transcribe", response_model=TranscriptionResponse, response_model_exclude_none=True)
 async def transcribe(
     audio: UploadFile = File(...), language: str | None = Form(default=None)
 ) -> TranscriptionResponse:
     path = await _save_audio(audio)
     try:
         result = await run_in_threadpool(transcribe_audio, path, language)
+        translation: str | None = None
+        requested_lang = (language or "").strip().lower()
+        if requested_lang == "ta":
+            translation = await run_in_threadpool(translate_to_english, result.transcript, "ta")
+
         return TranscriptionResponse(
-            transcript=result.transcript, language=result.language, confidence=result.confidence
+            transcript=result.transcript,
+            language=result.language,
+            confidence=result.confidence,
+            translation=translation,
         )
     except InvalidAudioError as exc:
         raise APIError("INVALID_AUDIO", "The uploaded file is not valid audio.", 400) from exc
@@ -133,3 +148,14 @@ async def extract_profile_endpoint(request: ExtractProfileRequest) -> ProfileRes
         raise APIError("EMPTY_TRANSCRIPT", "Transcript must not be empty.", 422) from exc
     except Exception as exc:
         raise APIError("EXTRACTION_UNAVAILABLE", "Profile extraction is temporarily unavailable.", 503) from exc
+
+
+@app.post("/api/v1/match-opportunities")
+async def match_opportunities_endpoint(request: MatchOpportunitiesRequest) -> list[dict]:
+    return await run_in_threadpool(
+        match_skills_to_opportunities,
+        user_skills=request.skills,
+        user_experience_years=request.experience_years,
+        district=request.district,
+        domain=request.domain,
+    )

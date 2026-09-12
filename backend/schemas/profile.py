@@ -45,3 +45,11 @@ class TranscriptionResponse(BaseModel):
     transcript: str = Field(min_length=1)
     language: str = Field(min_length=1)
     confidence: float = Field(ge=0, le=1)
+    translation: str | None = None
+
+
+class MatchOpportunitiesRequest(BaseModel):
+    skills: list[str] = Field(default_factory=list)
+    experience_years: float | None = None
+    district: str | None = None
+    domain: str | None = None

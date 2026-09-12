@@ -387,3 +387,172 @@ def test_api_contracts(monkeypatch):
     )
     assert response.status_code == 503
     assert response.json()["error"]["code"] == "ASR_UNAVAILABLE"
+
+def test_translate_to_english_service():
+    from backend.services.translation import translate_to_english
+    # Tamil with known translation
+    res = translate_to_english("நான் Python பயன்படுத்தி ஒரு inventory management application உருவாக்கினேன்.", "ta")
+    assert res == "I created an inventory management application using Python."
+
+    # Tamil with website
+    res = translate_to_english("நான் Python பயன்படுத்தி ஒரு website உருவாக்கினேன்.", "ta")
+    assert res == "I created a website using Python."
+
+    # English input -> None
+    assert translate_to_english("I know Python.", "en") is None
+
+    # Other languages -> None
+    assert translate_to_english("मैं Python जानता हूँ।", "hi") is None
+    assert translate_to_english("నేను Python ఉపయోగిస్తాను.", "te") is None
+
+    # Empty input -> None
+    assert translate_to_english("", "ta") is None
+    assert translate_to_english(None, "ta") is None
+
+
+def test_transcribe_endpoint_tamil_translation(monkeypatch):
+    client = TestClient(app)
+    tamil_speech = "நான் Python பயன்படுத்தி ஒரு inventory management application உருவாக்கினேன்."
+    monkeypatch.setattr(
+        "backend.main.transcribe_audio",
+        lambda *_: TranscriptionResult(tamil_speech, "ta", 0.88),
+    )
+    response = client.post(
+        "/api/v1/transcribe",
+        files={"audio": ("sample.wav", b"RIFF\x00\x00\x00\x00WAVEfmt \x00\x00\x00\x00", "audio/wav")},
+        data={"language": "ta"},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["transcript"] == tamil_speech
+    assert data["language"] == "ta"
+    assert data["confidence"] == 0.88
+    assert data["translation"] == "I created an inventory management application using Python."
+
+
+def test_transcribe_endpoint_tamil_graceful_when_no_key(monkeypatch):
+    client = TestClient(app)
+    tamil_speech = "நான் புதிதாக ஒரு வித்தியாசமான விஷயத்தை பேசுகிறேன்."
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.setattr(
+        "backend.main.transcribe_audio",
+        lambda *_: TranscriptionResult(tamil_speech, "ta", 0.85),
+    )
+    response = client.post(
+        "/api/v1/transcribe",
+        files={"audio": ("sample.wav", b"RIFF\x00\x00\x00\x00WAVEfmt \x00\x00\x00\x00", "audio/wav")},
+        data={"language": "ta"},
+    )
+    # Must NOT fail - transcription succeeds, translation is null/excluded
+    assert response.status_code == 200
+    data = response.json()
+    assert data["transcript"] == tamil_speech
+    assert data["language"] == "ta"
+    assert "translation" not in data or data["translation"] is None
+
+def test_multiple_skills_python_and_java():
+    # Example 1: I have worked with Python and Java.
+    profile = extract_profile("I have worked with Python and Java.")
+    skills = {s.canonical_name: s for s in profile.skills}
+    assert "Python" in skills
+    assert "Java" in skills
+    assert "Python" in skills["Python"].evidence
+    assert "Java" in skills["Java"].evidence
+    assert skills["Python"].inference_type == "explicit"
+    assert skills["Java"].inference_type == "explicit"
+
+
+def test_multiple_skills_python_java_sql_react():
+    # Example 2: I know Python, Java, SQL and React.
+    profile = extract_profile("I know Python, Java, SQL and React.")
+    names = {s.canonical_name for s in profile.skills}
+    assert {"Python", "Java", "SQL", "React"} <= names
+
+
+def test_multiple_skills_projects_using_python_java():
+    # Example 3: I developed projects using Python and Java.
+    profile = extract_profile("I developed projects using Python and Java.")
+    names = {s.canonical_name for s in profile.skills}
+    assert {"Python", "Java"} <= names
+
+
+def test_multiple_skills_html_css_javascript_react():
+    # Example 4: I worked with HTML, CSS, JavaScript and React.
+    profile = extract_profile("I worked with HTML, CSS, JavaScript and React.")
+    names = {s.canonical_name for s in profile.skills}
+    assert {"HTML", "CSS", "JavaScript", "React"} <= names
+
+
+def test_multiple_skills_python_data_analysis_java_backend():
+    # Example 5: I have used Python for data analysis and Java for backend development.
+    profile = extract_profile("I have used Python for data analysis and Java for backend development.")
+    names = {s.canonical_name for s in profile.skills}
+    assert {"Python", "Data Analysis", "Java", "Backend Development"} <= names
+
+
+def test_multiple_skills_python_data_analysis_pandas_numpy():
+    # Example 6: I use Python for data analysis with Pandas and NumPy.
+    profile = extract_profile("I use Python for data analysis with Pandas and NumPy.")
+    names = {s.canonical_name for s in profile.skills}
+    assert {"Python", "Data Analysis", "Pandas", "NumPy"} <= names
+
+
+def test_evidence_isolation_between_separate_sentences():
+    # Separate sentences must have accurate evidence
+    transcript = "I worked with Python on data automation. Later, I used Java for enterprise services."
+    profile = extract_profile(transcript)
+    skills = {s.canonical_name: s for s in profile.skills}
+    assert "Python" in skills
+    assert "Java" in skills
+    assert "Python" in skills["Python"].evidence
+    assert "Java" not in skills["Python"].evidence
+    assert "Java" in skills["Java"].evidence
+    assert "Python" not in skills["Java"].evidence
+
+def test_match_opportunities_service():
+    from backend.services.matching_service import match_skills_to_opportunities
+    # User with Python, Java, SQL
+    results = match_skills_to_opportunities(["Python", "Java", "SQL"])
+    assert len(results) >= 50
+    # Top result should match Python/Java/SQL skills with high score
+    top = results[0]
+    assert top["match_score"] > 0
+    assert any(s in top["matched_skills"] for s in ["Python", "Java", "SQL"])
+    # Check required fields match contract
+    assert "opportunity_id" in top
+    assert "title" in top
+    assert "company" in top
+    assert "matched_skills" in top
+    assert "missing_skills" in top
+    assert "why_matched" in top
+    assert "breakdown" in top
+    assert "skill_similarity" in top["breakdown"]
+
+
+def test_match_opportunities_api_endpoint():
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/match-opportunities",
+        json={"skills": ["Python", "Java", "SQL"], "district": "Chennai"},
+    )
+    assert response.status_code == 200
+    opps = response.json()
+    assert len(opps) > 0
+    for opp in opps:
+        assert opp["district"] == "Chennai" or "Chennai" in opp["location"]
+        assert "matched_skills" in opp
+        assert "missing_skills" in opp
+        assert "match_score" in opp
+
+
+def test_no_fake_skills_hallucinated():
+    # Transcript with Python and Java must NOT invent Industrial Sewing, Stock Management, etc.
+    profile = extract_profile("I have worked with Python and Java.")
+    extracted_names = {s.canonical_name for s in profile.skills}
+    assert "Python" in extracted_names
+    assert "Java" in extracted_names
+    assert "Industrial Sewing Machine Operation" not in extracted_names
+    assert "Textile Quality Inspection & Fabric Grading" not in extracted_names
+    assert "Inventory Management" not in extracted_names
+    assert "Customer Handling" not in extracted_names
+

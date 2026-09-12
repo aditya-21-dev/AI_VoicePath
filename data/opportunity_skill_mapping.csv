@@ -1,0 +1,241 @@
+opportunity_id,skill_canonical_name,importance
+opp_001,Python,required
+opp_001,SQL,required
+opp_001,Git,required
+opp_002,Python,required
+opp_002,REST API,required
+opp_002,Git,required
+opp_002,Linux,preferred
+opp_003,Python,required
+opp_003,SQL,required
+opp_003,REST API,required
+opp_003,OOP,preferred
+opp_004,Java,required
+opp_004,SQL,required
+opp_004,OOP,required
+opp_004,REST API,preferred
+opp_005,Java,required
+opp_005,Data Structures,required
+opp_005,Algorithms,required
+opp_005,Git,preferred
+opp_006,Java,required
+opp_006,AWS,required
+opp_006,SQL,required
+opp_006,Linux,preferred
+opp_007,Python,required
+opp_007,Java,required
+opp_007,SQL,required
+opp_007,Git,preferred
+opp_008,Python,required
+opp_008,Java,required
+opp_008,Backend Development,required
+opp_008,REST API,preferred
+opp_009,React,required
+opp_009,JavaScript,required
+opp_009,HTML,required
+opp_009,CSS,preferred
+opp_010,HTML,required
+opp_010,CSS,required
+opp_010,JavaScript,required
+opp_010,React,preferred
+opp_011,React,required
+opp_011,Node.js,required
+opp_011,JavaScript,required
+opp_011,REST API,preferred
+opp_011,SQL,preferred
+opp_012,JavaScript,required
+opp_012,TypeScript,required
+opp_012,React,required
+opp_012,Node.js,preferred
+opp_012,MongoDB,preferred
+opp_013,HTML,required
+opp_013,CSS,required
+opp_013,JavaScript,required
+opp_013,SQL,preferred
+opp_014,Python,required
+opp_014,SQL,required
+opp_014,Pandas,required
+opp_014,Data Analysis,preferred
+opp_014,Microsoft Excel,preferred
+opp_015,SQL,required
+opp_015,Data Analysis,required
+opp_015,Power BI,required
+opp_015,Data Visualization,preferred
+opp_016,Python,required
+opp_016,Data Analysis,required
+opp_016,Pandas,required
+opp_016,NumPy,preferred
+opp_016,SQL,preferred
+opp_017,SQL,required
+opp_017,Microsoft Excel,required
+opp_017,Power BI,required
+opp_017,Data Analysis,preferred
+opp_018,Python,required
+opp_018,Machine Learning,required
+opp_018,Pandas,required
+opp_018,NumPy,preferred
+opp_018,Scikit-learn,preferred
+opp_019,Python,required
+opp_019,Computer Vision,required
+opp_019,PyTorch,required
+opp_019,NumPy,preferred
+opp_020,Python,required
+opp_020,NLP,required
+opp_020,Machine Learning,required
+opp_020,SQL,preferred
+opp_021,Python,required
+opp_021,Generative AI,required
+opp_021,REST API,required
+opp_021,Docker,preferred
+opp_022,AWS,required
+opp_022,Linux,required
+opp_022,Computer Networks,required
+opp_022,Cloud Computing,preferred
+opp_023,Docker,required
+opp_023,Linux,required
+opp_023,Git,required
+opp_023,CI/CD,preferred
+opp_024,Cloud Computing,required
+opp_024,Linux,required
+opp_024,Python,required
+opp_024,Git,preferred
+opp_025,Android,required
+opp_025,Kotlin,required
+opp_025,Java,required
+opp_025,OOP,preferred
+opp_026,Flutter,required
+opp_026,Dart,required
+opp_026,REST API,required
+opp_026,Git,preferred
+opp_027,SQL,required
+opp_027,Database Management,required
+opp_027,MySQL,required
+opp_027,Linux,preferred
+opp_028,SQL,required
+opp_028,PostgreSQL,required
+opp_028,Database Management,required
+opp_028,Python,preferred
+opp_029,Cybersecurity,required
+opp_029,Network Security,required
+opp_029,Linux,required
+opp_029,Computer Networks,preferred
+opp_030,Computer Networks,required
+opp_030,Linux,required
+opp_030,Problem Solving,required
+opp_031,UI/UX Design,required
+opp_031,Figma,required
+opp_031,HTML,required
+opp_031,CSS,preferred
+opp_032,UI/UX Design,required
+opp_032,Figma,required
+opp_032,CSS,required
+opp_032,Communication,preferred
+opp_033,Industrial Sewing Machine Operation,required
+opp_033,Textile Quality Inspection & Fabric Grading,required
+opp_033,Inventory Management,required
+opp_033,Quality Control,preferred
+opp_034,Industrial Sewing Machine Operation,required
+opp_034,Inventory Management,required
+opp_034,Shop Floor Supervision & Mentorship,required
+opp_035,Customer Handling,required
+opp_035,Inventory Management,required
+opp_035,Retail,required
+opp_035,Sales,preferred
+opp_036,Inventory Management,required
+opp_036,Problem Solving,required
+opp_036,Quality Control,required
+opp_037,Customer Handling,required
+opp_037,Communication,required
+opp_037,Retail,required
+opp_038,Quality Control,required
+opp_038,Problem Solving,required
+opp_038,Teamwork,required
+opp_039,Python,required
+opp_039,SQL,required
+opp_039,Pandas,required
+opp_039,Git,preferred
+opp_040,Java,required
+opp_040,OOP,required
+opp_040,SQL,required
+opp_041,React,required
+opp_041,JavaScript,required
+opp_041,HTML,required
+opp_041,CSS,preferred
+opp_042,JavaScript,required
+opp_042,React,required
+opp_042,Node.js,required
+opp_042,PostgreSQL,preferred
+opp_043,Power BI,required
+opp_043,SQL,required
+opp_043,Data Analysis,required
+opp_043,Data Visualization,preferred
+opp_044,Python,required
+opp_044,Machine Learning,required
+opp_044,Pandas,required
+opp_044,Data Visualization,preferred
+opp_045,Linux,required
+opp_045,Cloud Computing,required
+opp_045,Computer Networks,required
+opp_046,Docker,required
+opp_046,Git,required
+opp_046,Linux,required
+opp_046,CI/CD,preferred
+opp_047,Android,required
+opp_047,Kotlin,required
+opp_047,REST API,required
+opp_048,Flutter,required
+opp_048,Dart,required
+opp_048,JavaScript,required
+opp_049,SQL,required
+opp_049,Database Management,required
+opp_049,Microsoft Excel,required
+opp_050,Cybersecurity,required
+opp_050,Network Security,required
+opp_050,Linux,required
+opp_051,Computer Networks,required
+opp_051,Problem Solving,required
+opp_051,Linux,required
+opp_052,UI/UX Design,required
+opp_052,Figma,required
+opp_052,Communication,required
+opp_053,Inventory Management,required
+opp_053,Retail,required
+opp_053,Customer Handling,required
+opp_054,Quality Control,required
+opp_054,Industrial Sewing Machine Operation,required
+opp_055,Communication,required
+opp_055,Problem Solving,required
+opp_055,SQL,required
+opp_056,Java,required
+opp_056,REST API,required
+opp_056,SQL,required
+opp_056,Git,preferred
+opp_057,Python,required
+opp_057,Data Analysis,required
+opp_057,Pandas,required
+opp_058,Python,required
+opp_058,Machine Learning,required
+opp_058,Scikit-learn,required
+opp_059,Linux,required
+opp_059,Computer Networks,required
+opp_059,Git,required
+opp_060,React,required
+opp_060,JavaScript,required
+opp_060,HTML,required
+opp_060,CSS,preferred
+opp_061,SQL,required
+opp_061,Python,required
+opp_061,Database Management,required
+opp_062,Inventory Management,required
+opp_062,Microsoft Excel,required
+opp_062,Problem Solving,required
+opp_063,Quality Control,required
+opp_063,Problem Solving,required
+opp_064,Python,required
+opp_064,SQL,required
+opp_064,Pandas,required
+opp_064,Data Analysis,preferred
+opp_065,Java,required
+opp_065,React,required
+opp_065,SQL,required
+opp_065,Git,preferred

@@ -1,8 +1,31 @@
+# VoicePath — combined requirements
+# Member 2: FastAPI backend, ASR (faster-whisper), Gemini profile extraction
+# Member 3: Opportunity matching, embedding similarity, scikit-learn ranking
+
+# ── Web Framework ──────────────────────────────────────────────────────────────
 fastapi
 uvicorn
+python-multipart
+
+# ── Data Validation ────────────────────────────────────────────────────────────
 pydantic
+
+# ── Configuration ──────────────────────────────────────────────────────────────
+python-dotenv
+
+# ── ASR / Speech Recognition (Member 2) ───────────────────────────────────────
+faster-whisper
+
+# ── LLM Profile Extraction (Member 2) ─────────────────────────────────────────
+google-genai
+
+# ── Numeric / ML / Matching (Member 3) ────────────────────────────────────────
 numpy
 scikit-learn
 sentence-transformers
+
+# ── Database (Member 3 / future) ───────────────────────────────────────────────
 psycopg[binary]
-python-dotenv
+
+# ── Testing ────────────────────────────────────────────────────────────────────
+pytest

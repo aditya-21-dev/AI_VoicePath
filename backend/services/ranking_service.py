@@ -1,3 +1,14 @@
+"""Ranking service for ordering matched opportunities.
+
+Provides both:
+- rank_opportunities(): Functional interface used by the matching pipeline
+  to sort opportunities by match score, matched count, and recency.
+- RankingService: Member 3's rich class-based ranking with weighted scoring,
+  experience match, district check, eligibility check, and interest match.
+"""
+
+from __future__ import annotations
+
 import os
 import re
 import sys
@@ -7,6 +18,24 @@ try:
     from .filter_service import FilterService
 except ImportError:
     from filter_service import FilterService
+
+
+# ─── Functional Interface (used by matching_service pipeline) ─────────────────
+
+def rank_opportunities(opportunities: list[dict]) -> list[dict]:
+    """Rank opportunities by match score descending, then matched count."""
+    return sorted(
+        opportunities,
+        key=lambda o: (
+            o.get("match_score", 0.0),
+            len(o.get("matched_skills", [])),
+            -o.get("posted_days_ago", 99),
+        ),
+        reverse=True,
+    )
+
+
+# ─── Class-Based Interface (Member 3 weighted ranking) ────────────────────────
 
 class RankingService:
     def __init__(self):
@@ -66,7 +95,7 @@ class RankingService:
         Ranks a list of opportunities based on the user's profile and pre-calculated skill matches.
         """
         ranked_results = []
-        
+
         default_skill_data = {"skill_similarity": 0.0, "matched_skills": [], "missing_skills": []}
         skill_matches_by_id = {
             match["opportunity_id"]: match
@@ -86,21 +115,21 @@ class RankingService:
 
             skill_sim = skill_data.get("skill_similarity", 0.0)
             exp_match = self._calculate_experience_match(user_profile.get("experience_years", 0), opp)
-            
-            # Use the new FilterService
+
+            # Use FilterService for district and eligibility checks
             dist_res = self.filter_service.check_district(
-                user_profile.get("district", ""), 
+                user_profile.get("district", ""),
                 user_profile.get("state", ""),
                 opp.get("District", ""),
                 opp.get("State", "")
             )
             dist_match = dist_res["score"]
-            
+
             elig_res = self.filter_service.check_eligibility(user_profile, opp)
             elig_match = self.filter_service.get_eligibility_score(elig_res["eligibility_status"])
-            
+
             int_match = self._calculate_interest_match(user_profile.get("interests", []), opp)
-            
+
             # Calculate weighted scores
             breakdown = {
                 "skill_similarity": round(skill_sim * self.weights["skill_similarity"], 2),
@@ -109,10 +138,10 @@ class RankingService:
                 "eligibility_match": round(elig_match * self.weights["eligibility_match"], 2),
                 "interest_match": round(int_match * self.weights["interest_match"], 2)
             }
-            
+
             total_score = sum(breakdown.values())
             breakdown["weighted_total"] = round(total_score, 2)
-            
+
             ranked_results.append({
                 "opportunity_id": opp.get("Opportunity_ID"),
                 "title": opp.get("Course_Name"),
@@ -129,7 +158,7 @@ class RankingService:
                 "eligibility_info": elig_res,
                 "district_info": dist_res
             })
-            
+
         # Sort by match_score descending
         ranked_results.sort(key=lambda x: x["match_score"], reverse=True)
         return ranked_results

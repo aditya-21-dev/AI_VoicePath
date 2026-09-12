@@ -1,0 +1,71 @@
+canonical_name,category,description
+Python,Programming,"High-level general-purpose programming language for backend, automation, and data."
+Java,Programming,Object-oriented programming language for enterprise backend and Android.
+JavaScript,Programming,Core web scripting language for interactive browser apps and Node.js.
+TypeScript,Programming,Typed superset of JavaScript providing scale and type safety.
+C++,Programming,High-performance systems programming language.
+C,Programming,Low-level systems programming language.
+HTML,Web Development,Standard markup language for web document structure.
+CSS,Web Development,Styling and responsive layout design for web interfaces.
+React,Web Development,Component-driven declarative frontend UI library.
+Node.js,Web Development,Server-side JavaScript runtime environment.
+REST API,Web Development,RESTful web services and API endpoints development.
+Web Development,Web Development,End-to-end web application architecture and engineering.
+Frontend Development,Web Development,"Client-side web architecture, layout, and UX implementation."
+Backend Development,Web Development,"Server architecture, business logic, and API design."
+Full Stack Development,Web Development,Integrated client-side and server-side software engineering.
+SQL,Database,Structured Query Language for relational database querying and manipulation.
+MySQL,Database,Open-source relational database management system.
+PostgreSQL,Database,Advanced open-source relational object database.
+MongoDB,Database,Document-oriented NoSQL database system.
+Database Management,Database,"Database architecture, schema design, and administration."
+Data Analysis,Data Analytics,"Inspecting, cleansing, transforming, and modeling data for decision-making."
+Pandas,Data Analytics,Python data analysis and DataFrame manipulation library.
+NumPy,Data Analytics,Numerical computing and multi-dimensional matrix operations in Python.
+Data Visualization,Data Analytics,Visual representations of data and business metrics.
+Microsoft Excel,Data Analytics,"Spreadsheet analysis, formulas, PivotTables, and reporting."
+Power BI,Data Analytics,Interactive business intelligence dashboards and report authoring.
+Tableau,Data Analytics,Visual analytics platform for enterprise reporting.
+Machine Learning,AI & ML,Algorithmic systems that learn patterns from training data.
+Deep Learning,AI & ML,Multi-layered neural networks for perceptual and predictive intelligence.
+Scikit-learn,AI & ML,Python machine learning library for statistical modeling and prediction.
+TensorFlow,AI & ML,Open-source platform for deep learning and neural network training.
+PyTorch,AI & ML,Dynamic tensor and neural network computation framework.
+NLP,AI & ML,Natural Language Processing for text analysis and linguistic AI.
+Computer Vision,AI & ML,Visual analysis and image recognition AI systems.
+Generative AI,AI & ML,Large language models and multimodal generative intelligence.
+Cloud Computing,Cloud & DevOps,On-demand cloud infrastructure and virtualized computing.
+AWS,Cloud & DevOps,Amazon Web Services cloud platform and ecosystem.
+Azure,Cloud & DevOps,Microsoft cloud platform for enterprise solutions.
+Google Cloud,Cloud & DevOps,Google Cloud Platform infrastructure and services.
+Docker,Cloud & DevOps,Containerization platform for application packaging and isolation.
+Kubernetes,Cloud & DevOps,Container orchestration platform for automated scaling.
+Linux,Cloud & DevOps,Unix-like operating system command line and server administration.
+Git,Cloud & DevOps,Distributed version control and code collaboration tool.
+CI/CD,Cloud & DevOps,Continuous Integration and Continuous Deployment automation.
+OOP,Software Development,"Object-oriented design patterns, encapsulation, and inheritance."
+Data Structures,Software Development,"Core algorithmic data structures: trees, graphs, maps, lists."
+Algorithms,Software Development,"Computational problem solving, searching, and sorting."
+Software Development,Software Development,Systematic software engineering principles and design.
+Cybersecurity,Cybersecurity,"Protecting systems, networks, and programs from digital attacks."
+Network Security,Cybersecurity,"Implementing network defense, firewalls, and encryption protocols."
+Ethical Hacking,Cybersecurity,Penetration testing and security vulnerability analysis.
+Computer Networks,Networking,"TCP/IP, routing, switching, and network topology."
+Android,Mobile Development,Native mobile application development for the Android OS.
+Kotlin,Mobile Development,Modern expressive programming language for Android.
+Flutter,Mobile Development,Cross-platform mobile UI framework by Google.
+Dart,Mobile Development,Client-optimized programming language for multiplatform Flutter apps.
+Mobile App Development,Mobile Development,End-to-end design and publishing of mobile apps.
+UI/UX Design,Design,"User interface layout, experience design, and wireframing."
+Figma,Design,Collaborative interface design and interactive prototyping.
+Communication,General,"Clear verbal, written, and cross-functional technical communication."
+Problem Solving,General,Analytical debugging and root-cause resolution.
+Teamwork,General,Collaborative development and peer pair-programming.
+Retail,Vocational,"Retail store customer service, shelf inventory, and point-of-sale."
+Sales,Vocational,"Customer consulting, product demos, and retail conversions."
+Customer Handling,Vocational,Frontline customer query resolution and relationship building.
+Inventory Management,Vocational,"Stock ledger audits, SKU counts, and shrinkage prevention."
+Quality Control,Vocational,"Product standards compliance, defect tracking, and AQL testing."
+Industrial Sewing Machine Operation,Vocational,Stitching and industrial garment assembly machinery operation.
+Textile Quality Inspection & Fabric Grading,Vocational,"Fabric weave inspection, GSM check, and defect tagging."
+Shop Floor Supervision & Mentorship,Vocational,"Production line pacing, operator shift guidance, and safety compliance."
